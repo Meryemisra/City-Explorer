@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Şehir Keşif - Giriş</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+    <header>
+        <div class="profile-section">
+            <a href="/profile" class="profile-link">
+                <i class="fas fa-user"></i>
+                <span>Profil</span>
+            </a>
+        </div>
+    </header>
+
+    <main class="container">
+        <h1>Şehir Keşif</h1>
+        <div class="welcome-text">
+            <p>Hoş geldiniz! Keşfetmek istediğiniz şehri seçin.</p>
+        </div>
+        
+        <div class="city-selection">
+            <select id="citySelect" class="city-dropdown">
+                <option value="">Şehir Seçiniz</option>
+                <option value="istanbul">İstanbul</option>
+                <option value="ankara">Ankara</option>
+                <option value="izmir">İzmir</option>
+                <option value="antalya">Antalya</option>
+                <option value="bursa">Bursa</option>
+                <!-- Diğer şehirler buraya eklenebilir -->
+            </select>
+            <button id="exploreBtn" class="explore-btn">Keşfet</button>
+        </div>
+
+        <div class="featured-cities">
+            <h2>Popüler Şehirler</h2>
+            <div class="city-grid">
+                <div class="city-card" data-city="istanbul">
+                    <img src="images/istanbul.jpg" alt="İstanbul">
+                    <h3>İstanbul</h3>
+                </div>
+                <div class="city-card" data-city="ankara">
+                    <img src="images/ankara.jpg" alt="Ankara">
+                    <h3>Ankara</h3>
+                </div>
+                <div class="city-card" data-city="izmir">
+                    <img src="images/izmir.jpg" alt="İzmir">
+                    <h3>İzmir</h3>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/main.js"></script>
+</body>
+
+</html> 
