@@ -9,22 +9,23 @@
     <!-- Custom CSS -->
     <style>
         .welcome-section {
-            background: linear-gradient(135deg, #6B73FF 0%, #000DFF 100%);
-            color: white;
+            background-color: #f8f9fa;
             padding: 2rem 0;
             margin-bottom: 2rem;
         }
-        .city-card, .comment-card {
-            transition: transform 0.3s ease;
+        .card {
             margin-bottom: 1rem;
+            transition: transform 0.2s;
         }
-        .city-card:hover, .comment-card:hover {
+        .card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
-        .card-img-top {
-            height: 200px;
-            object-fit: cover;
+        .section-title {
+            margin: 2rem 0;
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 0.5rem;
         }
     </style>
 </head>
@@ -32,27 +33,22 @@
     <!-- Welcome Section -->
     <div class="welcome-section">
         <div class="container">
-            <h1 id="welcomeMessage">Hoş Geldiniz!</h1>
-            <p class="lead">Şehir keşiflerinize devam edin</p>
+            <h1 id="welcomeMessage" class="text-center">Hoş Geldiniz!</h1>
         </div>
     </div>
 
     <div class="container">
         <!-- Cities Section -->
-        <section class="mb-5">
-            <h2 class="mb-4">Gezilecek Yerler</h2>
-            <div class="row" id="citiesContainer">
-                <!-- Cities will be loaded here -->
-            </div>
-        </section>
+        <h2 class="section-title">Gezilecek Yerler</h2>
+        <div class="row" id="citiesContainer">
+            <!-- Cities will be loaded here -->
+        </div>
 
         <!-- Comments Section -->
-        <section class="mb-5">
-            <h2 class="mb-4">Kullanıcı Yorumları</h2>
-            <div class="row" id="commentsContainer">
-                <!-- Comments will be loaded here -->
-            </div>
-        </section>
+        <h2 class="section-title">Kullanıcı Yorumları</h2>
+        <div class="row" id="commentsContainer">
+            <!-- Comments will be loaded here -->
+        </div>
     </div>
 
     <!-- Bootstrap JS and Popper.js -->
@@ -71,18 +67,16 @@
             try {
                 const response = await fetch('/get/cities');
                 const cities = await response.json();
-                
                 const citiesContainer = document.getElementById('citiesContainer');
+                
                 cities.forEach(city => {
                     const cityCard = `
                         <div class="col-md-4">
-                            <div class="card city-card">
-                                <img src="${city.image || 'https://via.placeholder.com/300x200'}" 
-                                     class="card-img-top" 
-                                     alt="${city.name}">
+                            <div class="card">
                                 <div class="card-body">
                                     <h5 class="card-title">${city.name}</h5>
                                     <p class="card-text">${city.description || 'Açıklama bulunmuyor.'}</p>
+                                    <p class="card-text"><small class="text-muted">${city.location || 'Konum bilgisi yok'}</small></p>
                                 </div>
                             </div>
                         </div>
@@ -99,17 +93,16 @@
             try {
                 const response = await fetch('/get/comments');
                 const comments = await response.json();
-                
                 const commentsContainer = document.getElementById('commentsContainer');
+                
                 comments.forEach(comment => {
                     const commentCard = `
                         <div class="col-md-6">
-                            <div class="card comment-card">
+                            <div class="card">
                                 <div class="card-body">
                                     <h5 class="card-title">${comment.username}</h5>
-                                    <h6 class="card-subtitle mb-2 text-muted">${comment.city}</h6>
                                     <p class="card-text">${comment.content}</p>
-                                    <small class="text-muted">${new Date(comment.date).toLocaleDateString('tr-TR')}</small>
+                                    <p class="card-text"><small class="text-muted">${new Date(comment.date).toLocaleDateString('tr-TR')}</small></p>
                                 </div>
                             </div>
                         </div>
