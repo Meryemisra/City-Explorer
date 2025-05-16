@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>City Explorer</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <style>
+        .welcome-section {
+            background: linear-gradient(135deg, #6B73FF 0%, #000DFF 100%);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+        .city-card, .comment-card {
+            transition: transform 0.3s ease;
+            margin-bottom: 1rem;
+        }
+        .city-card:hover, .comment-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .card-img-top {
+            height: 200px;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+    <!-- Welcome Section -->
+    <div class="welcome-section">
+        <div class="container">
+            <h1 id="welcomeMessage">Hoş Geldiniz!</h1>
+            <p class="lead">Şehir keşiflerinize devam edin</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Cities Section -->
+        <section class="mb-5">
+            <h2 class="mb-4">Gezilecek Yerler</h2>
+            <div class="row" id="citiesContainer">
+                <!-- Cities will be loaded here -->
+            </div>
+        </section>
+
+        <!-- Comments Section -->
+        <section class="mb-5">
+            <h2 class="mb-4">Kullanıcı Yorumları</h2>
+            <div class="row" id="commentsContainer">
+                <!-- Comments will be loaded here -->
+            </div>
+        </section>
+    </div>
+
+    <!-- Bootstrap JS and Popper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JavaScript -->
+    <script>
+        // Check if user is logged in and get username from localStorage
+        const username = localStorage.getItem('username');
+        if (username) {
+            document.getElementById('welcomeMessage').textContent = `Hoş Geldiniz, ${username}!`;
+        }
+
+        // Fetch and display cities
+        async function fetchCities() {
+            try {
+                const response = await fetch('/get/cities');
+                const cities = await response.json();
+                
+                const citiesContainer = document.getElementById('citiesContainer');
+                cities.forEach(city => {
+                    const cityCard = `
+                        <div class="col-md-4">
+                            <div class="card city-card">
+                                <img src="${city.image || 'https://via.placeholder.com/300x200'}" 
+                                     class="card-img-top" 
+                                     alt="${city.name}">
+                                <div class="card-body">
+                                    <h5 class="card-title">${city.name}</h5>
+                                    <p class="card-text">${city.description || 'Açıklama bulunmuyor.'}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    citiesContainer.innerHTML += cityCard;
+                });
+            } catch (error) {
+                console.error('Şehirler yüklenirken hata oluştu:', error);
+            }
+        }
+
+        // Fetch and display comments
+        async function fetchComments() {
+            try {
+                const response = await fetch('/get/comments');
+                const comments = await response.json();
+                
+                const commentsContainer = document.getElementById('commentsContainer');
+                comments.forEach(comment => {
+                    const commentCard = `
+                        <div class="col-md-6">
+                            <div class="card comment-card">
+                                <div class="card-body">
+                                    <h5 class="card-title">${comment.username}</h5>
+                                    <h6 class="card-subtitle mb-2 text-muted">${comment.city}</h6>
+                                    <p class="card-text">${comment.content}</p>
+                                    <small class="text-muted">${new Date(comment.date).toLocaleDateString('tr-TR')}</small>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    commentsContainer.innerHTML += commentCard;
+                });
+            } catch (error) {
+                console.error('Yorumlar yüklenirken hata oluştu:', error);
+            }
+        }
+
+        // Load data when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchCities();
+            fetchComments();
+        });
+    </script>
+</body>
+</html> 
