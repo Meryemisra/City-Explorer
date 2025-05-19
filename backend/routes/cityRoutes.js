@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const cityController = require('../controllers/cityController');
-const { isAuthenticated } = require('../middlewares/auth');
+const { isAuthenticated } = require('../middleware/authMiddleware');
 
 // Şehirleri listele
 router.get('/', cityController.getCities);

@@ -1,7 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const commentController = require('../controllers/commentController');
-const { isAuthenticated } = require('../middlewares/auth');
+const { isAuthenticated } = require('../middleware/authMiddleware');
+
+// Tüm yorumları listele
+router.get('/', commentController.getAllComments);
 
 // Yorumları listele
 router.get('/cities/:cityId/comments', commentController.getComments);
