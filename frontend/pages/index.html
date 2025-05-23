@@ -4,60 +4,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Şehir Keşif - Giriş</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>Ana Sayfa - City Explorer</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .welcome-section { text-align: center; margin: 20px 0; }
+        .city-list { margin-top: 20px; }
+        #map-container { width: 100%; max-width: 800px; margin: 0 auto; }
+        svg { width: 100%; height: auto; }
+        path { fill: #ccc; stroke: #fff; stroke-width: 1; cursor: pointer; }
+        path:hover { fill: #aaa; }
+        #comment-form { display: none; margin-top: 20px; }
+    </style>
 </head>
 
 <body>
-    <header>
-        <div class="profile-section">
-            <a href="/profile" class="profile-link">
-                <i class="fas fa-user"></i>
-                <span>Profil</span>
-            </a>
+    <div class="container">
+        <div class="welcome-section">
+            <h1>Hoş Geldiniz</h1>
+            <p>City Explorer'a hoş geldiniz! Şehirleri keşfetmek için aşağıdaki linkleri kullanabilirsiniz.</p>
+            <a href="/login" class="btn btn-primary">Giriş Yap</a>
+            <a href="/register" class="btn btn-secondary">Kayıt Ol</a>
+            <a href="/add-city" class="btn btn-info">Şehir Ekle</a>
         </div>
-    </header>
+        <div id="map-container">
+            <!-- Türkiye SVG Haritası -->
+            <svg viewBox="0 0 1000 500" xmlns="http://www.w3.org/2000/svg">
+                <!-- Örnek olarak birkaç il eklenmiştir. Gerçek haritada tüm iller olmalıdır. -->
+                <path id="istanbul" d="M100,100 L150,100 L150,150 L100,150 Z" data-city="İstanbul" />
+                <path id="ankara" d="M200,200 L250,200 L250,250 L200,250 Z" data-city="Ankara" />
+                <path id="izmir" d="M300,300 L350,300 L350,350 L300,350 Z" data-city="İzmir" />
+                <!-- Diğer iller buraya eklenebilir -->
+            </svg>
+        </div>
+        <div id="comment-form">
+            <h3 id="selected-city-name"></h3>
+            <textarea id="comment" class="form-control" placeholder="Yorumunuzu yazın..."></textarea>
+            <button id="submit-comment" class="btn btn-success mt-2">Yorum Yap</button>
+        </div>
+    </div>
+    <script src="js/fetchCities.js"></script>
+    <script>
+        document.querySelectorAll('svg path').forEach(path => {
+            path.addEventListener('click', function() {
+                const cityName = this.getAttribute('data-city');
+                document.getElementById('selected-city-name').textContent = cityName;
+                document.getElementById('comment-form').style.display = 'block';
+            });
+        });
 
-    <main class="container">
-        <h1>Şehir Keşif</h1>
-        <div class="welcome-text">
-            <p>Hoş geldiniz! Keşfetmek istediğiniz şehri seçin.</p>
-        </div>
-        
-        <div class="city-selection">
-            <select id="citySelect" class="city-dropdown">
-                <option value="">Şehir Seçiniz</option>
-                <option value="istanbul">İstanbul</option>
-                <option value="ankara">Ankara</option>
-                <option value="izmir">İzmir</option>
-                <option value="antalya">Antalya</option>
-                <option value="bursa">Bursa</option>
-                <!-- Diğer şehirler buraya eklenebilir -->
-            </select>
-            <button id="exploreBtn" class="explore-btn">Keşfet</button>
-        </div>
-
-        <div class="featured-cities">
-            <h2>Popüler Şehirler</h2>
-            <div class="city-grid">
-                <div class="city-card" data-city="istanbul">
-                    <img src="images/istanbul.jpg" alt="İstanbul">
-                    <h3>İstanbul</h3>
-                </div>
-                <div class="city-card" data-city="ankara">
-                    <img src="images/ankara.jpg" alt="Ankara">
-                    <h3>Ankara</h3>
-                </div>
-                <div class="city-card" data-city="izmir">
-                    <img src="images/izmir.jpg" alt="İzmir">
-                    <h3>İzmir</h3>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <script src="js/main.js"></script>
+        document.getElementById('submit-comment').addEventListener('click', function() {
+            const cityName = document.getElementById('selected-city-name').textContent;
+            const comment = document.getElementById('comment').value;
+            if (comment) {
+                console.log('Şehir:', cityName, 'Yorum:', comment);
+                // Yorum gönderme işlemi burada yapılabilir
+            } else {
+                alert('Lütfen bir yorum yazın.');
+            }
+        });
+    </script>
 </body>
 
 </html> 
