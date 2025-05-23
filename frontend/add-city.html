@@ -37,6 +37,13 @@
             border-radius: 5px;
             background-color: #d1e7dd;
         }
+        body { font-family: Arial, sans-serif; }
+        #map-container { width: 100%; max-width: 800px; margin: 0 auto; }
+        svg { width: 100%; height: auto; }
+        path { fill: #ccc; stroke: #fff; stroke-width: 1; cursor: pointer; }
+        path:hover { fill: #aaa; }
+        form { margin-top: 20px; }
+        input, textarea { display: block; margin: 10px 0; width: 100%; }
     </style>
 </head>
 <body>
@@ -44,7 +51,19 @@
         <div class="form-container">
             <h2 class="form-title">Yeni Şehir Ekle</h2>
             
-            <form id="addCityForm">
+            <div id="map-container">
+                <!-- Türkiye SVG Haritası -->
+                <svg viewBox="0 0 1000 500" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Örnek olarak birkaç il eklenmiştir. Gerçek haritada tüm iller olmalıdır. -->
+                    <path id="istanbul" d="M100,100 L150,100 L150,150 L100,150 Z" data-city="İstanbul" />
+                    <path id="ankara" d="M200,200 L250,200 L250,250 L200,250 Z" data-city="Ankara" />
+                    <path id="izmir" d="M300,300 L350,300 L350,350 L300,350 Z" data-city="İzmir" />
+                    <!-- Diğer iller buraya eklenebilir -->
+                </svg>
+            </div>
+
+            <form id="city-form">
+                <input type="hidden" name="city" id="selected-city" />
                 <div class="mb-3">
                     <label for="cityName" class="form-label">Şehir Adı</label>
                     <input type="text" class="form-control" id="cityName" name="name" required>
@@ -75,5 +94,28 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Custom JS -->
     <script src="js/add-city.js"></script>
+
+    <script>
+        document.querySelectorAll('svg path').forEach(path => {
+            path.addEventListener('click', function() {
+                const cityName = this.getAttribute('data-city');
+                document.getElementById('selected-city').value = cityName;
+                alert('Seçilen şehir: ' + cityName);
+            });
+        });
+
+        document.getElementById('city-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const city = document.getElementById('selected-city').value;
+            const description = document.getElementById('cityDescription').value;
+            const imageLink = document.getElementById('cityImage').value;
+            if (!city) {
+                alert('Lütfen bir şehir seçin.');
+                return;
+            }
+            // Form verilerini gönderme işlemi burada yapılabilir
+            console.log('Şehir:', city, 'Açıklama:', description, 'Görsel Linki:', imageLink);
+        });
+    </script>
 </body>
 </html> 
