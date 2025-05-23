@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Şehir Detayları - City Explorer</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <style>
+        .city-header {
+            background-color: #f8f9fa;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+        .city-image {
+            width: 100%;
+            max-height: 400px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+        .comment-card {
+            margin-bottom: 1rem;
+            transition: transform 0.2s;
+        }
+        .comment-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .comment-form {
+            background-color: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+        }
+        .comment-date {
+            color: #6c757d;
+            font-size: 0.875rem;
+        }
+        .back-button {
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Back Button -->
+        <div class="back-button">
+            <a href="index.html" class="btn btn-outline-primary">
+                <i class="bi bi-arrow-left"></i> Ana Sayfaya Dön
+            </a>
+        </div>
+
+        <!-- City Details Section -->
+        <div class="city-header">
+            <div class="row">
+                <div class="col-md-6">
+                    <img id="cityImage" class="city-image" src="" alt="Şehir Fotoğrafı">
+                </div>
+                <div class="col-md-6">
+                    <h1 id="cityName" class="mb-3"></h1>
+                    <p id="cityDescription" class="lead"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comment Form Section -->
+        <div class="comment-form">
+            <h3 class="mb-3">Yorum Yap</h3>
+            <form id="commentForm">
+                <div class="mb-3">
+                    <textarea class="form-control" id="commentContent" rows="3" required 
+                              placeholder="Düşüncelerinizi paylaşın..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Yorum Gönder</button>
+            </form>
+            <div id="commentError" class="alert alert-danger mt-3" style="display: none;"></div>
+        </div>
+
+        <!-- Comments Section -->
+        <div class="comments-section">
+            <h3 class="mb-4">Yorumlar</h3>
+            <div id="commentsContainer">
+                <!-- Comments will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Check if user is logged in
+            const username = localStorage.getItem('username');
+            if (!username) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Get city ID from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const cityId = urlParams.get('id');
+
+            if (!cityId) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Load city details
+            try {
+                const response = await fetch(`http://localhost:3000/cities/${cityId}`);
+                if (!response.ok) throw new Error('Şehir bilgileri yüklenemedi.');
+                
+                const city = await response.json();
+                
+                // Update page title
+                document.title = `${city.name} - City Explorer`;
+                
+                // Update city details
+                document.getElementById('cityName').textContent = city.name;
+                document.getElementById('cityDescription').textContent = city.description;
+                document.getElementById('cityImage').src = city.imageUrl;
+                document.getElementById('cityImage').alt = city.name;
+
+                // Load comments
+                await loadComments(cityId);
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Şehir bilgileri yüklenirken bir hata oluştu.');
+            }
+
+            // Handle comment form submission
+            const commentForm = document.getElementById('commentForm');
+            const commentError = document.getElementById('commentError');
+
+            commentForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                commentError.style.display = 'none';
+
+                const content = document.getElementById('commentContent').value.trim();
+                if (!content) {
+                    showCommentError('Lütfen bir yorum yazın.');
+                    return;
+                }
+
+                try {
+                    const response = await fetch('http://localhost:3000/comments', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        },
+                        body: JSON.stringify({
+                            cityId,
+                            content
+                        })
+                    });
+
+                    if (!response.ok) {
+                        const error = await response.json();
+                        throw new Error(error.message || 'Yorum gönderilemedi.');
+                    }
+
+                    // Clear form and reload comments
+                    commentForm.reset();
+                    await loadComments(cityId);
+                } catch (error) {
+                    showCommentError(error.message);
+                }
+            });
+
+            async function loadComments(cityId) {
+                try {
+                    const response = await fetch(`http://localhost:3000/cities/${cityId}/comments`);
+                    if (!response.ok) throw new Error('Yorumlar yüklenemedi.');
+                    
+                    const comments = await response.json();
+                    const commentsContainer = document.getElementById('commentsContainer');
+                    
+                    if (comments.length === 0) {
+                        commentsContainer.innerHTML = '<p class="text-muted">Henüz yorum yapılmamış. İlk yorumu siz yapın!</p>';
+                        return;
+                    }
+
+                    commentsContainer.innerHTML = comments.map(comment => `
+                        <div class="card comment-card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h5 class="card-title mb-0">${comment.username}</h5>
+                                    <small class="comment-date">${new Date(comment.date).toLocaleDateString('tr-TR')}</small>
+                                </div>
+                                <p class="card-text">${comment.content}</p>
+                            </div>
+                        </div>
+                    `).join('');
+                } catch (error) {
+                    console.error('Error loading comments:', error);
+                    document.getElementById('commentsContainer').innerHTML = 
+                        '<p class="text-danger">Yorumlar yüklenirken bir hata oluştu.</p>';
+                }
+            }
+
+            function showCommentError(message) {
+                commentError.textContent = message;
+                commentError.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html> 
