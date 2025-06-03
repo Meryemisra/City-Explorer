@@ -1,0 +1,59 @@
+.comment-section {
+    max-width: 800px;
+    margin: 2rem auto;
+}
+
+.comment-card {
+    margin-bottom: 1rem;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.comment-author {
+    font-weight: bold;
+    color: #0d6efd;
+}
+
+.comment-date {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.comment-content {
+    margin-bottom: 0.5rem;
+}
+
+.comment-form {
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+}
+
+.delete-btn {
+    color: #dc3545;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+}
+
+.delete-btn:hover {
+    color: #bb2d3b;
+}
+
+.login-prompt {
+    text-align: center;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+} 
