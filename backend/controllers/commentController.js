@@ -7,7 +7,10 @@ exports.getAllComments = async (req, res) => {
             .from('comments')
             .select(`
                 *,
-                users:user_id (username),
+                user:user_id (
+                    email,
+                    raw_user_meta_data
+                ),
                 cities:city_id (name)
             `)
             .order('created_at', { ascending: false });
@@ -16,7 +19,13 @@ exports.getAllComments = async (req, res) => {
             return res.status(400).json({ error: error.message });
         }
 
-        res.json(data);
+        // Kullanıcı adlarını ekle
+        const commentsWithUsernames = data.map(comment => ({
+            ...comment,
+            username: comment.user?.raw_user_meta_data?.username || 'Anonim'
+        }));
+
+        res.json(commentsWithUsernames);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -31,7 +40,10 @@ exports.getComments = async (req, res) => {
             .from('comments')
             .select(`
                 *,
-                users:user_id (username)
+                user:user_id (
+                    email,
+                    raw_user_meta_data
+                )
             `)
             .eq('city_id', cityId)
             .order('created_at', { ascending: false });
@@ -40,7 +52,13 @@ exports.getComments = async (req, res) => {
             return res.status(400).json({ error: error.message });
         }
 
-        res.json(data);
+        // Kullanıcı adlarını ekle
+        const commentsWithUsernames = data.map(comment => ({
+            ...comment,
+            username: comment.user?.raw_user_meta_data?.username || 'Anonim'
+        }));
+
+        res.json(commentsWithUsernames);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

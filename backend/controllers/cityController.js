@@ -8,7 +8,8 @@ exports.getCities = async (req, res) => {
             .select(`
                 *,
                 user:user_id (
-                    user_metadata->username
+                    email,
+                    raw_user_meta_data
                 )
             `)
             .order('created_at', { ascending: false });
@@ -20,7 +21,7 @@ exports.getCities = async (req, res) => {
         // Kullanıcı adlarını ekle
         const citiesWithUsernames = cities.map(city => ({
             ...city,
-            username: city.user?.user_metadata?.username || 'Anonim'
+            username: city.user?.raw_user_meta_data?.username || 'Anonim'
         }));
 
         res.render('index', {

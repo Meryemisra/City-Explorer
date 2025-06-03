@@ -4,66 +4,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ana Sayfa - City Explorer</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <title>City Explorer</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/index.css">
     <style>
-        body { font-family: Arial, sans-serif; }
-        .welcome-section { text-align: center; margin: 20px 0; }
-        .city-list { margin-top: 20px; }
-        #map-container { width: 100%; max-width: 800px; margin: 0 auto; }
-        svg { width: 100%; height: auto; }
-        path { fill: #ccc; stroke: #fff; stroke-width: 1; cursor: pointer; }
-        path:hover { fill: #aaa; }
-        #comment-form { display: none; margin-top: 20px; }
+        .map-container {
+            width: 100%;
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 1rem;
+        }
+        .city-path {
+            fill: #e9ecef;
+            stroke: #495057;
+            stroke-width: 1;
+            transition: fill 0.3s ease;
+            cursor: pointer;
+        }
+        .city-path:hover {
+            fill: #adb5bd;
+        }
+        .city-path.selected {
+            fill: #0d6efd;
+        }
     </style>
 </head>
 
 <body>
-    <div class="container">
-        <div class="welcome-section">
-            <h1>Hoş Geldiniz</h1>
-            <p>City Explorer'a hoş geldiniz! Şehirleri keşfetmek için aşağıdaki linkleri kullanabilirsiniz.</p>
-            <a href="/login" class="btn btn-primary">Giriş Yap</a>
-            <a href="/register" class="btn btn-secondary">Kayıt Ol</a>
-            <a href="/add-city" class="btn btn-info">Şehir Ekle</a>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">City Explorer</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="index.html">Ana Sayfa</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="map.html">Harita</a>
+                    </li>
+                </ul>
+            </div>
         </div>
-        <div id="map-container">
-            <!-- Türkiye SVG Haritası -->
-            <svg viewBox="0 0 1000 500" xmlns="http://www.w3.org/2000/svg">
-                <!-- Örnek olarak birkaç il eklenmiştir. Gerçek haritada tüm iller olmalıdır. -->
-                <path id="istanbul" d="M100,100 L150,100 L150,150 L100,150 Z" data-city="İstanbul" />
-                <path id="ankara" d="M200,200 L250,200 L250,250 L200,250 Z" data-city="Ankara" />
-                <path id="izmir" d="M300,300 L350,300 L350,350 L300,350 Z" data-city="İzmir" />
-                <!-- Diğer iller buraya eklenebilir -->
-            </svg>
-        </div>
-        <div id="comment-form">
-            <h3 id="selected-city-name"></h3>
-            <textarea id="comment" class="form-control" placeholder="Yorumunuzu yazın..."></textarea>
-            <button id="submit-comment" class="btn btn-success mt-2">Yorum Yap</button>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="text-center mb-4">Türkiye Şehir Haritası</h1>
+                <div class="map-container">
+                    <object id="turkeyMap" data="../assets/map/turkiye-haritasi.svg" type="image/svg+xml" width="100%" height="500">
+                        Türkiye haritası yüklenemedi.
+                    </object>
+                </div>
+            </div>
         </div>
     </div>
-    <script src="js/fetchCities.js"></script>
-    <script>
-        document.querySelectorAll('svg path').forEach(path => {
-            path.addEventListener('click', function() {
-                const cityName = this.getAttribute('data-city');
-                document.getElementById('selected-city-name').textContent = cityName;
-                document.getElementById('comment-form').style.display = 'block';
-            });
-        });
 
-        document.getElementById('submit-comment').addEventListener('click', function() {
-            const cityName = document.getElementById('selected-city-name').textContent;
-            const comment = document.getElementById('comment').value;
-            if (comment) {
-                console.log('Şehir:', cityName, 'Yorum:', comment);
-                // Yorum gönderme işlemi burada yapılabilir
-            } else {
-                alert('Lütfen bir yorum yazın.');
-            }
-        });
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/map-select.js"></script>
 </body>
 
 </html> 

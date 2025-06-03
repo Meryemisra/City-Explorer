@@ -50,7 +50,16 @@ exports.login = async (req, res) => {
 // Register işlemi
 exports.register = async (req, res) => {
     try {
+        console.log('Register request body:', req.body);
+
         const { email, password, username } = req.body;
+
+        // Gerekli alanların kontrolü
+        if (!email || !password || !username) {
+            return res.status(400).json({ 
+                error: 'Email, şifre ve kullanıcı adı zorunludur' 
+            });
+        }
 
         // Kullanıcıyı oluştur
         const { data: authData, error: authError } = await supabase.auth.signUp({
@@ -58,37 +67,40 @@ exports.register = async (req, res) => {
             password,
             options: {
                 data: {
-                    username
+                    username: username // username'i user metadata'ya ekle
                 }
             }
         });
 
         if (authError) {
+            console.error('Supabase auth error:', authError);
             if (authError.message.includes('already registered')) {
                 return res.status(400).json({ error: 'Bu email adresi zaten kayıtlı' });
             }
-            return res.status(400).json({ error: 'Kayıt işlemi başarısız: ' + authError.message });
+            return res.status(400).json({ 
+                error: 'Kayıt işlemi başarısız: ' + authError.message 
+            });
         }
 
-        // Profil tablosuna kullanıcı bilgilerini ekle
-        const { error: profileError } = await supabase
-            .from('profiles')
-            .insert([
-                {
-                    id: authData.user.id,
-                    username,
-                    email
-                }
-            ]);
-
-        if (profileError) {
-            return res.status(500).json({ error: 'Profil oluşturulurken bir hata oluştu' });
+        if (!authData || !authData.user) {
+            console.error('No user data returned from Supabase');
+            return res.status(500).json({ error: 'Kullanıcı oluşturulamadı' });
         }
 
-        res.json({ message: 'Kayıt başarılı' });
+        console.log('Registration successful for user:', email);
+        res.json({ 
+            message: 'Kayıt başarılı',
+            user: {
+                id: authData.user.id,
+                email: authData.user.email,
+                username: username
+            }
+        });
     } catch (error) {
-        console.error('Register error:', error.message);
-        res.status(500).json({ error: 'Kayıt olurken bir hata oluştu' });
+        console.error('Register error:', error);
+        res.status(500).json({ 
+            error: 'Kayıt olurken bir hata oluştu: ' + error.message 
+        });
     }
 };
 

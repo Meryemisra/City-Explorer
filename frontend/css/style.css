@@ -14,9 +14,12 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: var(--background-color);
+    background-color: #f8f9fa;
     color: var(--text-color);
     line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 header {
@@ -50,12 +53,13 @@ header {
     max-width: 1200px;
     margin: 2rem auto;
     padding: 0 1rem;
+    flex: 1;
 }
 
 h1 {
     text-align: center;
-    color: var(--primary-color);
-    margin-bottom: 2rem;
+    color: #212529;
+    margin-bottom: 1rem;
     font-size: 2.5rem;
 }
 
@@ -138,6 +142,23 @@ h1 {
     color: var(--primary-color);
 }
 
+.navbar {
+    box-shadow: 0 2px 4px rgba(0,0,0,.1);
+}
+
+.navbar-brand {
+    font-weight: bold;
+}
+
+.lead {
+    color: #6c757d;
+    margin-bottom: 2rem;
+}
+
+.btn {
+    padding: 0.5rem 2rem;
+}
+
 @media (max-width: 768px) {
     .city-selection {
         flex-direction: column;
@@ -147,5 +168,13 @@ h1 {
     .city-dropdown, .explore-btn {
         width: 100%;
         max-width: 300px;
+    }
+    
+    .container {
+        padding: 1rem;
+    }
+    
+    h1 {
+        font-size: 2rem;
     }
 } 

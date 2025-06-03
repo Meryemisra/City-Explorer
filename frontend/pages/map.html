@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Türkiye Haritası - City Explorer</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/index.css">
+    <style>
+        .map-container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        .map-wrapper {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+        }
+
+        .map-wrapper svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .city-path {
+            fill: #e0e0e0;
+            stroke: #fff;
+            stroke-width: 1;
+            cursor: pointer;
+            transition: fill 0.3s ease;
+        }
+
+        .city-path:hover {
+            fill: #007bff;
+            filter: brightness(1.1);
+        }
+
+        .city-path.selected {
+            fill: #0056b3;
+        }
+
+        .city-tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 14px;
+            pointer-events: none;
+            display: none;
+            z-index: 1000;
+        }
+
+        .city-info {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="welcome-section">
+            <h1>Türkiye Haritası</h1>
+            <p>Haritadan bir şehir seçerek detaylı bilgilere ulaşabilirsiniz.</p>
+        </div>
+
+        <div class="map-container">
+            <div class="map-wrapper">
+                <object id="turkey-map" data="../assets/map/turkiye-haritasi.svg" type="image/svg+xml" width="100%" height="100%">
+                    Türkiye haritası yüklenemedi.
+                </object>
+                <div class="city-tooltip"></div>
+            </div>
+        </div>
+
+        <div class="city-info" id="cityInfo">
+            <h3 id="selectedCityName"></h3>
+            <div id="cityDetails">
+                <!-- Şehir detayları buraya gelecek -->
+            </div>
+        </div>
+
+        <div class="city-form mt-4">
+            <form id="cityForm" class="card p-4">
+                <h4 class="mb-3">Şehir Seçimi</h4>
+                <div class="form-group">
+                    <label for="selectedCity">Seçilen Şehir:</label>
+                    <input type="text" class="form-control" id="selectedCity" name="city" readonly>
+                </div>
+                <button type="submit" class="btn btn-primary">Şehri Kaydet</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/map-select.js"></script>
+</body>
+</html> 
