@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function() {
+wdocument.addEventListener('DOMContentLoaded', function() {
     const mapObject = document.getElementById('turkey-map');
     const selectedCityInput = document.getElementById('selectedCity');
     const cityForm = document.getElementById('cityForm');

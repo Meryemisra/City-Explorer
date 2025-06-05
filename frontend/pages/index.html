@@ -4,41 +4,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>City Explorer</title>
+    <title>City Explorer - Ana Sayfa</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="../css/index.css">
-    <style>
-        .map-container {
-            width: 100%;
-            max-width: 1000px;
-            margin: 2rem auto;
-            padding: 1rem;
-        }
-        .city-path {
-            fill: #e9ecef;
-            stroke: #495057;
-            stroke-width: 1;
-            transition: fill 0.3s ease;
-            cursor: pointer;
-        }
-        .city-path:hover {
-            fill: #adb5bd;
-        }
-        .city-path.selected {
-            fill: #0d6efd;
-        }
-    </style>
+    <link rel="stylesheet" href="../css/style.css">
 </head>
 
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
-            <a class="navbar-brand" href="#">City Explorer</a>
+            <a class="navbar-brand" href="index.html">City Explorer</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
+                <ul class="navbar-nav me-auto">
                     <li class="nav-item">
                         <a class="nav-link active" href="index.html">Ana Sayfa</a>
                     </li>
@@ -46,25 +25,39 @@
                         <a class="nav-link" href="map.html">Harita</a>
                     </li>
                 </ul>
+                <div id="usernameDisplayContainer" style="display: none;" class="me-3">
+                    <span class="text-light">Hoş geldin, </span>
+                    <span id="usernameDisplay" class="text-light"></span>
+                </div>
+                <ul class="navbar-nav" id="authNav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="login.html">Giriş Yap</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="register.html">Kayıt Ol</a>
+                    </li>
+                </ul>
             </div>
         </div>
     </nav>
 
     <div class="container mt-4">
-        <div class="row">
-            <div class="col-12">
-                <h1 class="text-center mb-4">Türkiye Şehir Haritası</h1>
-                <div class="map-container">
-                    <object id="turkeyMap" data="../assets/map/turkiye-haritasi.svg" type="image/svg+xml" width="100%" height="500">
-                        Türkiye haritası yüklenemedi.
-                    </object>
-                </div>
-            </div>
+        <div class="welcome-section text-center mb-4">
+            <h1>Türkiye'nin Şehirlerini Keşfet</h1>
+            <p class="lead">Türkiye'nin 81 ilini keşfedin, şehirler hakkında bilgi edinin ve deneyimlerinizi paylaşın.</p>
         </div>
+
+        <div class="search-container mb-4">
+            <input type="text" id="searchInput" class="form-control" placeholder="Şehir ara...">
+        </div>
+
+        <div id="cityList" class="city-list"></div>
     </div>
 
+    <div class="city-tooltip" style="display: none;"></div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../js/map-select.js"></script>
+    <script src="../js/index.js"></script>
 </body>
 
 </html> 

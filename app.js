@@ -12,7 +12,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // Static files
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'frontend')));
 
 // Global middleware - kullanıcı bilgisini tüm view'lara gönder
 app.use(async (req, res, next) => {
@@ -32,14 +32,14 @@ app.use(async (req, res, next) => {
 
 // Routes
 const authRouter = require('./routes/auth');
-const citiesRouter = require('./routes/cities');
+const citiesRouter = require('./routes/cityRoutes');
 const placesRouter = require('./routes/places');
-const commentsRouter = require('./routes/comments');
+const commentsRouter = require('./routes/commentRoutes');
 
-app.use('/', authRouter);
-app.use('/cities', citiesRouter);
-app.use('/places', placesRouter);
-app.use('/comments', commentsRouter);
+app.use('/api/auth', authRouter);
+app.use('/api/cities', citiesRouter);
+app.use('/api/places', placesRouter);
+app.use('/api/comments', commentsRouter);
 
 // Ana sayfa
 app.get('/', (req, res) => {
