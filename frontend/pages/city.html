@@ -3,89 +3,267 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Şehir Detayları</title>
+    <title>Şehir Detayları - City Explorer</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .city-header {
+            background-color: #f8f9fa;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+        .section {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .section h2 {
+            color: #333;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #007bff;
+        }
+        .places-list {
+            list-style: none;
+            padding: 0;
+        }
+        .places-list li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #eee;
+        }
+        .places-list li:last-child {
+            border-bottom: none;
+        }
+    </style>
 </head>
 <body>
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
-            <a class="navbar-brand" href="/">Türkiye Şehir Rehberi</a>
+            <a class="navbar-brand" href="index.html">City Explorer</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item" id="usernameDisplayContainer" style="display: none;">
-                        <span class="nav-link">
-                            Hoş geldin, <span id="usernameDisplay"></span>
-                        </span>
-                    </li>
+                <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="/pages/login.html">Giriş Yap</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/pages/register.html">Kayıt Ol</a>
+                        <a class="nav-link" href="index.html">Ana Sayfa</a>
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
 
-    <!-- Ana İçerik -->
-    <div class="container mt-4">
-        <!-- Şehir Bilgileri -->
+    <div class="city-header">
+        <div class="container">
+            <h1 id="cityName" class="text-center"></h1>
+        </div>
+    </div>
+
+    <div class="container">
         <div class="row">
-            <div class="col-md-8">
-                <div id="cityInfoContainer">
-                    <h1 id="cityNameElement" class="mb-4"></h1>
-                    <div class="card mb-4">
-                        <div class="card-body">
-                            <h5 class="card-title">Şehir Hakkında</h5>
-                            <p id="descriptionElement" class="card-text"></p>
-                            
-                            <h5 class="card-title mt-4">Konum</h5>
-                            <p id="locationElement" class="card-text"></p>
-                            
-                            <h5 class="card-title mt-4">Nüfus</h5>
-                            <p id="populationElement" class="card-text"></p>
-                            
-                            <h5 class="card-title mt-4">Gezilecek Yerler</h5>
-                            <ul id="attractionsList" class="list-group list-group-flush"></ul>
-                        </div>
-                    </div>
+            <div class="col-md-8 mx-auto">
+                <div class="section">
+                    <h2>Şehir Hakkında</h2>
+                    <p id="cityInfo"></p>
                 </div>
-            </div>
-            
-            <!-- Yorumlar -->
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="mb-0">Yorumlar</h5>
-                    </div>
-                    <div class="card-body">
-                        <div id="commentsContainer"></div>
-                        
-                        <!-- Yorum Formu -->
-                        <form id="commentForm" class="mt-3">
-                            <div class="mb-3">
-                                <textarea id="commentInput" class="form-control" rows="3" placeholder="Yorumunuzu yazın..."></textarea>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Yorum Yap</button>
-                        </form>
-                        
-                        <!-- Giriş Yapma Uyarısı -->
-                        <div id="loginPrompt" class="alert alert-info mt-3" style="display: none;">
-                            Yorum yapabilmek için lütfen <a href="/pages/login.html">giriş yapın</a>.
-                        </div>
-                    </div>
+
+                <div class="section">
+                    <h2>Konum</h2>
+                    <p id="cityLocation"></p>
+                </div>
+
+                <div class="section">
+                    <h2>Nüfus</h2>
+                    <p id="cityPopulation"></p>
+                </div>
+
+                <div class="section">
+                    <h2>Gezilecek Yerler</h2>
+                    <ul class="places-list" id="placesToVisit"></ul>
                 </div>
             </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="/js/city.js"></script>
+    <script>
+        const cityData = {
+            'istanbul': {
+                info: 'İstanbul, Türkiye\'nin en kalabalık, ekonomik, tarihi ve sosyo-kültürel açıdan en önemli şehridir. Şehir, iktisadi büyüklük açısından dünyada 34. sırada yer alır. Nüfuslarına göre şehirler listesinde belediye sınırları göz önüne alınarak yapılan sıralamaya göre Avrupa\'da birinci, dünyada ise altıncı sırada yer almaktadır.',
+                location: 'İstanbul, Türkiye\'nin kuzeybatısında, Marmara Bölgesi\'nde yer alır. Boğaz ile iki kıtaya yayılan şehir, Karadeniz ve Marmara Denizi arasında yer alır.',
+                population: '15.5 milyon (2023)',
+                places: [
+                    'Ayasofya',
+                    'Topkapı Sarayı',
+                    'Sultanahmet Camii',
+                    'Galata Kulesi',
+                    'Kapalıçarşı',
+                    'Dolmabahçe Sarayı',
+                    'Boğaz Köprüsü',
+                    'Taksim Meydanı'
+                ]
+            },
+            'ankara': {
+                info: 'Ankara, Türkiye\'nin başkenti ve en kalabalık ikinci şehridir. Nüfusu 2023 yılı itibarıyla 5.7 milyondur. Bu nüfus; 25 ilçe ve bu ilçelere bağlı 1425 mahallede yaşamaktadır.',
+                location: 'Ankara, Türkiye\'nin merkezi kesiminde, İç Anadolu Bölgesi\'nde yer alır. Denizden yüksekliği 938 metre olan şehir, geniş bir ova üzerinde kurulmuştur.',
+                population: '5.7 milyon (2023)',
+                places: [
+                    'Anıtkabir',
+                    'Kızılay Meydanı',
+                    'Ankara Kalesi',
+                    'Etnografya Müzesi',
+                    'Atatürk Orman Çiftliği',
+                    'Kuğulu Park',
+                    'Anadolu Medeniyetleri Müzesi',
+                    'Gençlik Parkı'
+                ]
+            },
+            'izmir': {
+                info: 'İzmir, Türkiye\'nin üçüncü büyük şehri ve en önemli liman kentlerinden biridir. Tarihi boyunca birçok medeniyete ev sahipliği yapmış, önemli bir ticaret ve kültür merkezi olmuştur.',
+                location: 'İzmir, Türkiye\'nin batısında, Ege Bölgesi\'nde yer alır. İzmir Körfezi\'nin etrafında kurulmuş olan şehir, Ege Denizi\'ne kıyısı olan önemli bir liman kentidir.',
+                population: '4.4 milyon (2023)',
+                places: [
+                    'Kemeraltı Çarşısı',
+                    'Saat Kulesi',
+                    'Kordon',
+                    'Efes Antik Kenti',
+                    'Bergama Antik Kenti',
+                    'Çeşme',
+                    'Alaçatı',
+                    'Foça'
+                ]
+            },
+            'bursa': {
+                info: 'Bursa, Türkiye\'nin dördüncü büyük şehri ve önemli bir sanayi, ticaret ve turizm merkezidir. Osmanlı İmparatorluğu\'nun ilk başkenti olması nedeniyle "Tarihi Başkent" olarak da anılır.',
+                location: 'Bursa, Türkiye\'nin kuzeybatısında, Marmara Bölgesi\'nde yer alır. Uludağ\'ın eteklerinde kurulmuş olan şehir, verimli topraklara sahiptir.',
+                population: '3.1 milyon (2023)',
+                places: [
+                    'Uludağ',
+                    'Ulu Camii',
+                    'Yeşil Türbe',
+                    'Koza Han',
+                    'İznik Gölü',
+                    'Cumalıkızık',
+                    'Tophane',
+                    'İnkaya Çınarı'
+                ]
+            },
+            'antalya': {
+                info: 'Antalya, Türkiye\'nin önemli turizm merkezlerinden biridir. Akdeniz\'in en güzel kıyılarına sahip olan şehir, tarihi ve doğal güzellikleriyle ünlüdür.',
+                location: 'Antalya, Türkiye\'nin güneyinde, Akdeniz Bölgesi\'nde yer alır. Toros Dağları\'nın eteklerinde, Akdeniz kıyısında kurulmuştur.',
+                population: '2.6 milyon (2023)',
+                places: [
+                    'Kaleiçi',
+                    'Düden Şelalesi',
+                    'Konyaaltı Plajı',
+                    'Perge Antik Kenti',
+                    'Aspendos',
+                    'Side',
+                    'Olimpos',
+                    'Termessos'
+                ]
+            },
+            'adana': {
+                info: 'Adana, Türkiye\'nin önemli tarım ve sanayi merkezlerinden biridir. Çukurova\'nın merkezi olan şehir, verimli toprakları ve sıcak iklimiyle tanınır.',
+                location: 'Adana, Türkiye\'nin güneyinde, Akdeniz Bölgesi\'nde yer alır. Seyhan ve Ceyhan nehirlerinin oluşturduğu Çukurova\'da kurulmuştur.',
+                population: '2.2 milyon (2023)',
+                places: [
+                    'Taşköprü',
+                    'Büyük Saat Kulesi',
+                    'Seyhan Barajı',
+                    'Kapıkaya Kanyonu',
+                    'Yılankale',
+                    'Anavarza Antik Kenti',
+                    'Varda Köprüsü',
+                    'Çukurova Üniversitesi'
+                ]
+            },
+            'konya': {
+                info: 'Konya, Türkiye\'nin en eski yerleşim yerlerinden biridir. Mevlana\'nın şehri olarak bilinen Konya, önemli bir kültür ve turizm merkezidir.',
+                location: 'Konya, Türkiye\'nin güneyinde, İç Anadolu Bölgesi\'nde yer alır. Geniş bir ova üzerinde kurulmuş olan şehir, Türkiye\'nin en büyük yüzölçümüne sahip ilidir.',
+                population: '2.3 milyon (2023)',
+                places: [
+                    'Mevlana Müzesi',
+                    'Alaaddin Tepesi',
+                    'İnce Minare',
+                    'Sille',
+                    'Çatalhöyük',
+                    'Karatay Medresesi',
+                    'Selimiye Camii',
+                    'Tropikal Kelebek Bahçesi'
+                ]
+            },
+            'trabzon': {
+                info: 'Trabzon, Karadeniz\'in en önemli şehirlerinden biridir. Tarihi İpek Yolu üzerinde yer alan şehir, doğal güzellikleri ve tarihi yapılarıyla ünlüdür.',
+                location: 'Trabzon, Türkiye\'nin kuzeydoğusunda, Karadeniz Bölgesi\'nde yer alır. Karadeniz kıyısında, dağların denize paralel uzandığı bir bölgede kurulmuştur.',
+                population: '800 bin (2023)',
+                places: [
+                    'Ayasofya Müzesi',
+                    'Sümela Manastırı',
+                    'Uzungöl',
+                    'Atatürk Köşkü',
+                    'Boztepe',
+                    'Çal Mağarası',
+                    'Zağnos Vadisi',
+                    'Yayla Şenlikleri'
+                ]
+            },
+            'gaziantep': {
+                info: 'Gaziantep, Türkiye\'nin önemli sanayi ve ticaret merkezlerinden biridir. Bakırcılık, sedefçilik ve baklavasıyla ünlü olan şehir, zengin bir mutfak kültürüne sahiptir.',
+                location: 'Gaziantep, Türkiye\'nin güneydoğusunda, Güneydoğu Anadolu Bölgesi\'nde yer alır. Fırat ve Dicle nehirleri arasında, verimli bir ovada kurulmuştur.',
+                population: '2.1 milyon (2023)',
+                places: [
+                    'Gaziantep Kalesi',
+                    'Zeugma Mozaik Müzesi',
+                    'Bakırcılar Çarşısı',
+                    'Emine Göğüş Mutfak Müzesi',
+                    'Kurtuluş Cami',
+                    'Gaziantep Hayvanat Bahçesi',
+                    'Rumkale',
+                    'Dülük Antik Kenti'
+                ]
+            },
+            'kayseri': {
+                info: 'Kayseri, Türkiye\'nin önemli sanayi ve ticaret merkezlerinden biridir. Erciyes Dağı\'nın eteklerinde kurulmuş olan şehir, tarihi ve doğal güzellikleriyle tanınır.',
+                location: 'Kayseri, Türkiye\'nin merkezinde, İç Anadolu Bölgesi\'nde yer alır. Erciyes Dağı\'nın eteklerinde, geniş bir ovada kurulmuştur.',
+                population: '1.4 milyon (2023)',
+                places: [
+                    'Erciyes Dağı',
+                    'Kayseri Kalesi',
+                    'Sultan Sazlığı',
+                    'Kapuzbaşı Şelaleleri',
+                    'Gevher Nesibe Şifahanesi',
+                    'Kültepe',
+                    'Soğanlı Vadisi',
+                    'Koramaz Vadisi'
+                ]
+            }
+        };
+
+        // URL'den şehir adını al
+        const urlParams = new URLSearchParams(window.location.search);
+        const cityName = urlParams.get('name');
+
+        // Şehir verilerini göster
+        if (cityName && cityData[cityName.toLowerCase()]) {
+            const data = cityData[cityName.toLowerCase()];
+            document.getElementById('cityName').textContent = cityName;
+            document.getElementById('cityInfo').textContent = data.info;
+            document.getElementById('cityLocation').textContent = data.location;
+            document.getElementById('cityPopulation').textContent = data.population;
+            
+            const placesList = document.getElementById('placesToVisit');
+            data.places.forEach(place => {
+                const li = document.createElement('li');
+                li.textContent = place;
+                placesList.appendChild(li);
+            });
+        } else {
+            document.getElementById('cityName').textContent = 'Şehir Bulunamadı';
+        }
+    </script>
 </body>
 </html> 
