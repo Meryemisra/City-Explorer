@@ -2,11 +2,12 @@ const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 const { createClient } = require('@supabase/supabase-js');
+require('dotenv').config();
 
 // Supabase bağlantısı
 const supabase = createClient(
     process.env.SUPABASE_URL,
-    process.env.SUPABASE_KEY
+    process.env.SUPABASE_ANON_KEY
 );
 
 // JWT secret key

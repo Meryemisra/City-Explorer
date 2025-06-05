@@ -1,11 +1,12 @@
 const { createClient } = require('@supabase/supabase-js');
 const bcrypt = require('bcrypt');
 const path = require('path');
+require('dotenv').config();
 
 // Supabase bağlantısı
 const supabase = createClient(
     process.env.SUPABASE_URL,
-    process.env.SUPABASE_KEY
+    process.env.SUPABASE_ANON_KEY
 );
 
 // Sabit kullanıcı listesi

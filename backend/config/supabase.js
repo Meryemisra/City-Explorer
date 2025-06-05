@@ -1,9 +1,25 @@
+require('dotenv').config();
 const { createClient } = require('@supabase/supabase-js');
 const fetch = require('node-fetch');
+const dns = require('dns');
+
+// DNS ayarlarını kontrol et
+dns.setServers(['8.8.8.8', '8.8.4.4']);
 
 // Supabase bağlantı bilgileri
-const supabaseUrl = 'https://kuhvigmrbnqtkaloctbf.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1aHZpZ21yYm50cWthbG9jdGJmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNjUwNDMsImV4cCI6MjA2NDY0MTA0M30.O34vyer7I14Drb695L3RdNXB9fVnP5cQR0uhOVATbgI';
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_ANON_KEY;
+
+// Bağlantı bilgilerini kontrol et
+if (!supabaseUrl || !supabaseKey) {
+    console.error('Hata: SUPABASE_URL veya SUPABASE_ANON_KEY çevre değişkenleri bulunamadı!');
+    console.error('Mevcut değerler:');
+    console.error('SUPABASE_URL:', supabaseUrl);
+    console.error('SUPABASE_ANON_KEY:', supabaseKey ? '***' : 'yok');
+    process.exit(1);
+}
+
+console.log('Supabase URL:', supabaseUrl);
 
 // Supabase istemcisini oluştur
 const supabase = createClient(supabaseUrl, supabaseKey, {
@@ -16,7 +32,11 @@ const supabase = createClient(supabaseUrl, supabaseKey, {
         schema: 'public'
     },
     global: {
-        fetch: fetch
+        fetch: fetch,
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        }
     }
 });
 
@@ -24,6 +44,33 @@ const supabase = createClient(supabaseUrl, supabaseKey, {
 async function testConnection() {
     try {
         console.log('Supabase bağlantısı test ediliyor...');
+        console.log('URL:', supabaseUrl);
+        
+        // DNS çözümleme testi
+        try {
+            const hostname = new URL(supabaseUrl).hostname;
+            console.log('DNS çözümleme testi yapılıyor:', hostname);
+            const addresses = await dns.promises.resolve4(hostname);
+            console.log('DNS çözümleme sonucu:', addresses);
+        } catch (dnsError) {
+            console.error('DNS çözümleme hatası:', dnsError.message);
+        }
+
+        // Önce basit bir HTTP isteği ile bağlantıyı test et
+        try {
+            const response = await fetch(supabaseUrl, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            });
+            console.log('HTTP Bağlantı Durumu:', response.status);
+        } catch (httpError) {
+            console.error('HTTP Bağlantı Hatası:', httpError.message);
+        }
+
+        // Supabase sorgusu ile test et
         const { data, error } = await supabase
             .from('cities')
             .select('*')
