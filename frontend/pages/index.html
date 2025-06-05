@@ -166,7 +166,7 @@
         function renderCities(filteredCities = cities) {
             const cityList = document.getElementById('cityList');
             cityList.innerHTML = filteredCities.map(city => `
-                <div class="city-card" onclick="window.location.href='/city/${city.value}'">
+                <div class="city-card" onclick="window.location.href='city.html?name=${city.name}'">
                     ${city.name}
                 </div>
             `).join('');
