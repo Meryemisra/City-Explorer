@@ -1,21 +1,24 @@
 const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/authController');
-const { isNotAuthenticated } = require('../middleware/authMiddleware');
 
-// Login sayfası
-router.get('/login', isNotAuthenticated, authController.getLogin);
+// API Routes
+router.post('/login', authController.login);
+router.get('/check', authController.checkAuth);
+router.post('/logout', authController.logout);
 
-// Register sayfası
-router.get('/register', isNotAuthenticated, authController.getRegister);
+// Page Routes
+router.get('/login', authController.getLogin);
+router.get('/register', authController.getRegister);
 
-// Login işlemi
-router.post('/login', isNotAuthenticated, authController.login);
-
-// Register işlemi
-router.post('/register', isNotAuthenticated, authController.register);
-
-// Logout işlemi
-router.get('/logout', authController.logout);
+// Debug middleware - API rotalarını logla
+router.use((req, res, next) => {
+    console.log('Auth Route:', {
+        method: req.method,
+        path: req.path,
+        body: req.body
+    });
+    next();
+});
 
 module.exports = router; 

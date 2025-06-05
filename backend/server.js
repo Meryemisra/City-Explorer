@@ -1,89 +1,84 @@
 require('dotenv').config();
 const express = require('express');
-const session = require('express-session');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
-const { createClient } = require('@supabase/supabase-js');
-
-// Supabase bağlantısını oluştur
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_KEY;
-
-if (!supabaseUrl || !supabaseKey) {
-    console.error('Supabase bağlantı bilgileri eksik!');
-    process.exit(1);
-}
-
-const supabase = createClient(supabaseUrl, supabaseKey);
-
-// Import route files
 const authRoutes = require('./routes/authRoutes');
 const cityRoutes = require('./routes/cityRoutes');
-const commentRoutes = require('./routes/commentRoutes');
 
 const app = express();
 
+// CORS ayarları
+app.use(cors({
+    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept']
+}));
+
 // Middleware
-app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(session({
-    secret: process.env.SESSION_SECRET || 'gizli-anahtar',
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-        secure: process.env.NODE_ENV === 'production',
-        maxAge: 24 * 60 * 60 * 1000 // 24 hours
-    }
-}));
 
-// Serve static files from the frontend directory
-app.use(express.static(path.join(__dirname, '../frontend')));
-app.use('/css', express.static(path.join(__dirname, '../frontend/css')));
-app.use('/js', express.static(path.join(__dirname, '../frontend/js')));
-app.use('/assets', express.static(path.join(__dirname, '../frontend/assets')));
+// Debug middleware - tüm istekleri logla
+app.use((req, res, next) => {
+    console.log('İstek:', {
+        method: req.method,
+        url: req.url,
+        headers: req.headers,
+        body: req.body
+    });
+    next();
+});
 
-// API Routes
+// Frontend klasörünü statik olarak sun
+const frontendPath = path.join(__dirname, '../frontend');
+console.log('Frontend klasör yolu:', frontendPath);
+
+// API Routes - Statik dosya sunumundan önce
 app.use('/api/auth', authRoutes);
 app.use('/api/cities', cityRoutes);
-app.use('/api/comments', commentRoutes);
+app.use('/api/comments', require('./routes/commentRoutes'));
 
-// Serve HTML pages
+// Statik dosyaları sun
+app.use(express.static(path.join(__dirname, '../frontend')));
+
+// HTML sayfaları için özel rotalar
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/index.html'));
+    res.sendFile(path.join(frontendPath, 'pages/index.html'));
 });
 
 app.get('/pages/login', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/pages/login.html'));
+    res.sendFile(path.join(frontendPath, 'pages/login.html'));
 });
 
 app.get('/pages/register', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/pages/register.html'));
+    res.sendFile(path.join(frontendPath, 'pages/register.html'));
 });
 
-// Catch-all route for SPA
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/index.html'));
-});
-
-// Supabase bağlantısını test et
-async function testSupabaseConnection() {
-    try {
-        // Basit bir bağlantı testi
-        await supabase.auth.getSession();
-        console.log("Supabase bağlantısı başarılı.");
-    } catch (error) {
-        console.error("Supabase bağlantı hatası:", error.message);
-        process.exit(1);
+// 404 handler
+app.use((req, res) => {
+    console.log('404 - İstenen URL:', req.url);
+    if (req.path.startsWith('/api/')) {
+        res.status(404).json({ error: 'API endpoint bulunamadı' });
+    } else {
+        res.status(404).sendFile(path.join(frontendPath, 'pages/404.html'));
     }
-}
+});
 
-// Uygulama başlatıldığında bağlantıyı test et
-testSupabaseConnection();
+// Error handler
+app.use((err, req, res, next) => {
+    console.error('Hata:', err.stack);
+    if (req.path.startsWith('/api/')) {
+        res.status(500).json({ error: 'Bir hata oluştu!' });
+    } else {
+        res.status(500).sendFile(path.join(frontendPath, 'pages/500.html'));
+    }
+});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+    console.log(`Server ${PORT} portunda çalışıyor`);
+    console.log('Frontend klasörü:', frontendPath);
 }); 
