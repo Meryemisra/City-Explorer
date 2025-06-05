@@ -152,16 +152,28 @@
             { name: 'Karaman', value: 'karaman' },
             { name: 'Kırıkkale', value: 'kirikkale' },
             { name: 'Batman', value: 'batman' },
-            { name: 'Şırnak', value: 'sirnak' },
-            { name: 'Bartın', value: 'bartin' },
-            { name: 'Ardahan', value: 'ardahan' },
-            { name: 'Iğdır', value: 'igdir' },
-            { name: 'Yalova', value: 'yalova' },
-            { name: 'Karabük', value: 'karabuk' },
-            { name: 'Kilis', value: 'kilis' },
-            { name: 'Osmaniye', value: 'osmaniye' },
-            { name: 'Düzce', value: 'duzce' }
+            { name: 'Şırnak', value: 'Şırnak' },
+            { name: 'Bartın', value: 'Bartın' },
+            { name: 'Ardahan', value: 'Ardahan' },
+            { name: 'Iğdır', value: 'Iğdır' },
+            { name: 'Yalova', value: 'Yalova' },
+            { name: 'Karabük', value: 'Karabük' },
+            { name: 'Kilis', value: 'Kilis' },
+            { name: 'Osmaniye', value: 'Osmaniye' },
+            { name: 'Düzce', value: 'Düzce' }
         ];
+
+        function turkishToLower(str) {
+            return str
+                .replace(/İ/g, 'i')
+                .replace(/I/g, 'ı')
+                .replace(/Ş/g, 'ş')
+                .replace(/Ğ/g, 'ğ')
+                .replace(/Ü/g, 'ü')
+                .replace(/Ö/g, 'ö')
+                .replace(/Ç/g, 'ç')
+                .toLowerCase();
+        }
 
         function renderCities(filteredCities = cities) {
             const cityList = document.getElementById('cityList');
@@ -173,9 +185,9 @@
         }
 
         document.getElementById('searchInput').addEventListener('input', (e) => {
-            const searchTerm = e.target.value.toLowerCase();
+            const searchTerm = turkishToLower(e.target.value);
             const filteredCities = cities.filter(city => 
-                city.name.toLowerCase().includes(searchTerm)
+                turkishToLower(city.name).includes(searchTerm)
             );
             renderCities(filteredCities);
         });
