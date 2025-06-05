@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Türkiye Haritası - City Explorer</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="../css/index.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/index.css">
     <style>
         .map-container {
             width: 100%;
@@ -70,6 +70,33 @@
     </style>
 </head>
 <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">City Explorer</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Ana Sayfa</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="map.html">Harita</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav ms-auto" id="authNav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="login.html">Giriş Yap</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/pages/register.html">Kayıt Ol</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
     <div class="container">
         <div class="welcome-section">
             <h1>Türkiye Haritası</h1>
@@ -78,7 +105,7 @@
 
         <div class="map-container">
             <div class="map-wrapper">
-                <object id="turkey-map" data="../assets/map/turkiye-haritasi.svg" type="image/svg+xml" width="100%" height="100%">
+                <object id="turkey-map" data="assets/map/turkiye-haritasi.svg" type="image/svg+xml" width="100%" height="100%">
                     Türkiye haritası yüklenemedi.
                 </object>
                 <div class="city-tooltip"></div>
@@ -104,7 +131,8 @@
         </div>
     </div>
 
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
-    <script src="../js/map-select.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/map-select.js"></script>
+    <script src="js/login.js"></script>
 </body>
 </html> 
