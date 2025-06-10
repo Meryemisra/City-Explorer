@@ -1,14 +1,20 @@
 const express = require('express');
 const router = express.Router();
-const { isAuthenticated } = require('../middleware/authMiddleware');
-const supabase = require('../config/supabase');
+const { createClient } = require('@supabase/supabase-js');
 
-// Şehir yorumlarını getir
-router.get('/cities/:cityName/comments', async (req, res) => {
+// Supabase bağlantısı
+const supabase = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY
+);
+
+// Şehrin yorumlarını getir
+router.get('/:cityName/comments', async (req, res) => {
     try {
         const { cityName } = req.params;
-        
-        // Önce şehir ID'sini bul
+        console.log('Yorumlar getiriliyor:', cityName);
+
+        // Önce şehri bul
         const { data: city, error: cityError } = await supabase
             .from('cities')
             .select('id')
@@ -25,8 +31,8 @@ router.get('/cities/:cityName/comments', async (req, res) => {
             .from('comments')
             .select(`
                 *,
-                user:user_id (
-                    raw_user_meta_data
+                users:user_id (
+                    username
                 )
             `)
             .eq('city_id', city.id)
@@ -34,76 +40,68 @@ router.get('/cities/:cityName/comments', async (req, res) => {
 
         if (commentsError) {
             console.error('Yorumlar getirilirken hata:', commentsError);
-            return res.status(500).json({ error: 'Yorumlar getirilirken bir hata oluştu' });
+            return res.status(500).json({ error: 'Yorumlar getirilemedi' });
         }
 
-        // Kullanıcı adlarını ekle
-        const commentsWithUsernames = comments.map(comment => ({
-            ...comment,
-            username: comment.user?.raw_user_meta_data?.username || 'Anonim'
-        }));
-
-        res.json(commentsWithUsernames);
+        console.log('Yorumlar başarıyla getirildi:', comments);
+        res.json(comments);
     } catch (error) {
         console.error('Yorumlar getirilirken hata:', error);
-        res.status(500).json({ error: 'Yorumlar getirilirken bir hata oluştu' });
+        res.status(500).json({ error: 'Yorumlar getirilemedi' });
     }
 });
 
-// Yeni yorum ekle
-router.post('/', isAuthenticated, async (req, res) => {
+// Yorum ekle
+router.post('/:cityName/comments', async (req, res) => {
     try {
-        const { city_id, content } = req.body;
-        
-        // Auth bilgisini localStorage'dan al
-        const authStr = req.headers['x-auth-data'];
-        let auth = {};
-        try {
-            auth = JSON.parse(authStr || '{}');
-        } catch (error) {
-            console.error('Auth parse error:', error);
-            return res.status(401).json({ error: 'Geçersiz oturum bilgisi' });
+        const { cityName } = req.params;
+        const { content, userId } = req.body;
+        console.log('Yorum ekleniyor:', { cityName, content, userId });
+
+        if (!content || !userId) {
+            return res.status(400).json({ error: 'Yorum içeriği ve kullanıcı ID gerekli' });
         }
 
-        if (!auth.loggedIn || !auth.user || !auth.user.id) {
-            return res.status(401).json({ error: 'Oturum açmanız gerekiyor' });
-        }
+        // Önce şehri bul
+        const { data: city, error: cityError } = await supabase
+            .from('cities')
+            .select('id')
+            .eq('name', cityName)
+            .single();
 
-        if (!city_id || !content) {
-            return res.status(400).json({ error: 'Şehir ID ve yorum içeriği gerekli' });
+        if (cityError) {
+            console.error('Şehir bulunamadı:', cityError);
+            return res.status(404).json({ error: 'Şehir bulunamadı' });
         }
 
         // Yorumu ekle
-        const { data, error } = await supabase
+        const { data: comment, error: commentError } = await supabase
             .from('comments')
-            .insert([{
-                city_id,
-                content,
-                user_id: auth.user.id
-            }])
+            .insert([
+                {
+                    city_id: city.id,
+                    user_id: userId,
+                    content: content
+                }
+            ])
             .select(`
                 *,
-                user:user_id (
-                    raw_user_meta_data
+                users:user_id (
+                    username
                 )
             `)
             .single();
 
-        if (error) {
-            console.error('Yorum eklenirken hata:', error);
-            return res.status(500).json({ error: 'Yorum eklenirken bir hata oluştu' });
+        if (commentError) {
+            console.error('Yorum eklenirken hata:', commentError);
+            return res.status(500).json({ error: 'Yorum eklenemedi' });
         }
 
-        // Kullanıcı adını ekle
-        const commentWithUsername = {
-            ...data,
-            username: data.user?.raw_user_meta_data?.username || 'Anonim'
-        };
-
-        res.status(201).json(commentWithUsername);
+        console.log('Yorum başarıyla eklendi:', comment);
+        res.status(201).json(comment);
     } catch (error) {
         console.error('Yorum eklenirken hata:', error);
-        res.status(500).json({ error: 'Yorum eklenirken bir hata oluştu' });
+        res.status(500).json({ error: 'Yorum eklenemedi' });
     }
 });
 

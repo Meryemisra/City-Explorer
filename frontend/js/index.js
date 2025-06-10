@@ -1,190 +1,206 @@
 // Debug için konsol mesajı
 console.log('index.js yüklendi');
 
-// Türkiye'nin tüm şehirleri
-const cities = [
-    { id: 1, name: "Adana" },
-    { id: 2, name: "Adıyaman" },
-    { id: 3, name: "Afyonkarahisar" },
-    { id: 4, name: "Ağrı" },
-    { id: 5, name: "Amasya" },
-    { id: 6, name: "Ankara" },
-    { id: 7, name: "Antalya" },
-    { id: 8, name: "Artvin" },
-    { id: 9, name: "Aydın" },
-    { id: 10, name: "Balıkesir" },
-    { id: 11, name: "Bilecik" },
-    { id: 12, name: "Bingöl" },
-    { id: 13, name: "Bitlis" },
-    { id: 14, name: "Bolu" },
-    { id: 15, name: "Burdur" },
-    { id: 16, name: "Bursa" },
-    { id: 17, name: "Çanakkale" },
-    { id: 18, name: "Çankırı" },
-    { id: 19, name: "Çorum" },
-    { id: 20, name: "Denizli" },
-    { id: 21, name: "Diyarbakır" },
-    { id: 22, name: "Edirne" },
-    { id: 23, name: "Elazığ" },
-    { id: 24, name: "Erzincan" },
-    { id: 25, name: "Erzurum" },
-    { id: 26, name: "Eskişehir" },
-    { id: 27, name: "Gaziantep" },
-    { id: 28, name: "Giresun" },
-    { id: 29, name: "Gümüşhane" },
-    { id: 30, name: "Hakkari" },
-    { id: 31, name: "Hatay" },
-    { id: 32, name: "Isparta" },
-    { id: 33, name: "Mersin" },
-    { id: 34, name: "İstanbul" },
-    { id: 35, name: "İzmir" },
-    { id: 36, name: "Kars" },
-    { id: 37, name: "Kastamonu" },
-    { id: 38, name: "Kayseri" },
-    { id: 39, name: "Kırklareli" },
-    { id: 40, name: "Kırşehir" },
-    { id: 41, name: "Kocaeli" },
-    { id: 42, name: "Konya" },
-    { id: 43, name: "Kütahya" },
-    { id: 44, name: "Malatya" },
-    { id: 45, name: "Manisa" },
-    { id: 46, name: "Kahramanmaraş" },
-    { id: 47, name: "Mardin" },
-    { id: 48, name: "Muğla" },
-    { id: 49, name: "Muş" },
-    { id: 50, name: "Nevşehir" },
-    { id: 51, name: "Niğde" },
-    { id: 52, name: "Ordu" },
-    { id: 53, name: "Rize" },
-    { id: 54, name: "Sakarya" },
-    { id: 55, name: "Samsun" },
-    { id: 56, name: "Siirt" },
-    { id: 57, name: "Sinop" },
-    { id: 58, name: "Sivas" },
-    { id: 59, name: "Tekirdağ" },
-    { id: 60, name: "Tokat" },
-    { id: 61, name: "Trabzon" },
-    { id: 62, name: "Tunceli" },
-    { id: 63, name: "Şanlıurfa" },
-    { id: 64, name: "Uşak" },
-    { id: 65, name: "Van" },
-    { id: 66, name: "Yozgat" },
-    { id: 67, name: "Zonguldak" },
-    { id: 68, name: "Aksaray" },
-    { id: 69, name: "Bayburt" },
-    { id: 70, name: "Karaman" },
-    { id: 71, name: "Kırıkkale" },
-    { id: 72, name: "Batman" },
-    { id: 73, name: "Şırnak" },
-    { id: 74, name: "Bartın" },
-    { id: 75, name: "Ardahan" },
-    { id: 76, name: "Iğdır" },
-    { id: 77, name: "Yalova" },
-    { id: 78, name: "Karabük" },
-    { id: 79, name: "Kilis" },
-    { id: 80, name: "Osmaniye" },
-    { id: 81, name: "Düzce" }
-];
+// Oturum kontrolü
+async function checkSession() {
+    try {
+        const response = await fetch('/api/auth/session');
+        const data = await response.json();
+        
+        const authNav = document.getElementById('authNav');
+        if (!authNav) return;
 
-// Şehir listesini oluştur
-function createCityList(cities) {
-    const cityList = document.getElementById('cityList');
-    if (!cityList) return;
+        if (data.user) {
+            // Kullanıcı giriş yapmış
+            authNav.innerHTML = `
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <span class="nav-link text-light">Hoş geldin, ${data.user.username}</span>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="logout()">Çıkış Yap</a>
+                    </li>
+                </ul>
+            `;
+        } else {
+            // Kullanıcı giriş yapmamış
+            authNav.innerHTML = `
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/login">Giriş Yap</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/register">Kayıt Ol</a>
+                    </li>
+                </ul>
+            `;
+        }
+    } catch (error) {
+        console.error('Oturum kontrolü hatası:', error);
+        // Hata durumunda giriş/kayıt butonlarını göster
+        const authNav = document.getElementById('authNav');
+        if (authNav) {
+            authNav.innerHTML = `
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/login">Giriş Yap</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/register">Kayıt Ol</a>
+                    </li>
+                </ul>
+            `;
+        }
+    }
+}
+
+// Çıkış yapma fonksiyonu
+async function logout() {
+    try {
+        const response = await fetch('/api/auth/logout', {
+            method: 'POST'
+        });
+
+        if (response.ok) {
+            window.location.reload();
+        } else {
+            console.error('Çıkış yapılırken hata oluştu');
+        }
+    } catch (error) {
+        console.error('Çıkış yapılırken hata:', error);
+    }
+}
+
+let allCities = [];
+
+// Şehirleri yükle
+async function loadCities() {
+    try {
+        const response = await fetch('/api/cities');
+        if (!response.ok) {
+            throw new Error('Şehirler yüklenemedi');
+        }
+
+        const cities = await response.json();
+        console.log('Yüklenen şehirler:', cities);
+        renderCities(cities);
+    } catch (error) {
+        console.error('Şehirler yüklenirken hata:', error);
+        showError('Şehirler yüklenemedi');
+    }
+}
+
+// Şehirleri görüntüle
+function renderCities(cities) {
+    const citiesList = document.getElementById('citiesList');
+    if (!citiesList) {
+        console.error('citiesList elementi bulunamadı');
+        return;
+    }
+
+    citiesList.innerHTML = '';
     
-    cityList.innerHTML = '';
+    if (cities.length === 0) {
+        citiesList.innerHTML = '<div class="alert alert-info">Şehir bulunamadı</div>';
+        return;
+    }
+
     cities.forEach(city => {
-        const li = document.createElement('li');
-        li.className = 'list-group-item';
-        
-        const a = document.createElement('a');
-        a.href = `city.html?name=${encodeURIComponent(city.name)}`;
-        a.textContent = city.name;
-        a.className = 'text-decoration-none text-dark';
-        
-        li.appendChild(a);
-        cityList.appendChild(li);
+        const cityCard = document.createElement('div');
+        cityCard.className = 'col-md-3 mb-3';
+        cityCard.innerHTML = `
+            <a href="/city?name=${encodeURIComponent(city.name)}" class="text-decoration-none">
+                <div class="city-card">
+                    <h5 class="city-name">${city.name}</h5>
+                    <p class="city-region">${city.region || 'Bölge bilgisi yok'}</p>
+                </div>
+            </a>
+        `;
+        citiesList.appendChild(cityCard);
     });
 }
 
 // Arama fonksiyonu
 function searchCities(query) {
-    console.log('Arama yapılıyor:', query);
-    query = query.toLowerCase();
-    const filteredCities = cities.filter(city => 
-        city.name.toLowerCase().includes(query)
-    );
-    createCityList(filteredCities);
-}
-
-// Kullanıcı durumunu kontrol et
-function checkAuthStatus() {
-    console.log('checkAuthStatus çağrıldı');
-    
-    const authStr = localStorage.getItem('auth');
-    console.log('localStorage auth:', authStr);
-    
-    let auth = {};
-    try {
-        auth = JSON.parse(authStr || '{}');
-    } catch (error) {
-        console.error('Auth parse error:', error);
-        auth = {};
-    }
-    
-    console.log('Parsed auth:', auth);
-
-    const usernameDisplayContainer = document.getElementById('usernameDisplayContainer');
-    const usernameDisplay = document.getElementById('usernameDisplay');
-    const authNav = document.getElementById('authNav');
-
-    if (auth.loggedIn && auth.user) {
-        console.log('Kullanıcı giriş yapmış:', auth.user);
-        
-        if (usernameDisplayContainer && usernameDisplay) {
-            usernameDisplayContainer.style.display = 'block';
-            usernameDisplay.textContent = auth.user.username;
-        }
-
-        if (authNav) {
-            const loginLinks = authNav.querySelectorAll('a[href*="login"], a[href*="register"]');
-            loginLinks.forEach(link => {
-                link.parentElement.style.display = 'none';
-            });
-        }
-    } else {
-        console.log('Kullanıcı giriş yapmamış');
-        
-        if (usernameDisplayContainer) {
-            usernameDisplayContainer.style.display = 'none';
-        }
-
-        if (authNav) {
-            const loginLinks = authNav.querySelectorAll('a[href*="login"], a[href*="register"]');
-            loginLinks.forEach(link => {
-                link.parentElement.style.display = 'block';
-            });
-        }
-    }
-}
-
-// Sayfa yüklendiğinde çalışacak kodlar
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('Sayfa başlatılıyor...');
-    
-    // Kullanıcı durumunu kontrol et
-    checkAuthStatus();
-
-    // Şehir listesini oluştur
-    createCityList(cities);
-    
-    // Arama input event listener
     const searchInput = document.getElementById('searchInput');
-    if (searchInput) {
-        console.log('searchInput elementi bulundu');
-        searchInput.addEventListener('input', (e) => {
-            searchCities(e.target.value);
-        });
-    } else {
-        console.error('searchInput elementi bulunamadı!');
+    if (!searchInput) {
+        console.error('searchInput elementi bulunamadı');
+        return;
     }
+
+    query = query.toLowerCase().trim();
+    console.log('Arama sorgusu:', query);
+
+    const cityCards = document.querySelectorAll('#citiesList .col-md-3');
+    let foundAny = false;
+
+    cityCards.forEach(card => {
+        const cityName = card.querySelector('.city-name').textContent.toLowerCase();
+        const cityRegion = card.querySelector('.city-region').textContent.toLowerCase();
+        
+        if (cityName.includes(query) || cityRegion.includes(query)) {
+            card.style.display = '';
+            foundAny = true;
+        } else {
+            card.style.display = 'none';
+        }
+    });
+
+    const citiesList = document.getElementById('citiesList');
+    if (!foundAny) {
+        if (!citiesList.querySelector('.alert-info')) {
+            const noResults = document.createElement('div');
+            noResults.className = 'alert alert-info';
+            noResults.textContent = 'Arama kriterlerine uygun şehir bulunamadı';
+            citiesList.appendChild(noResults);
+        }
+    } else {
+        const noResults = citiesList.querySelector('.alert-info');
+        if (noResults) {
+            noResults.remove();
+        }
+    }
+}
+
+// Hata mesajı göster
+function showError(message) {
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'alert alert-danger';
+    errorDiv.textContent = message;
+    
+    const container = document.querySelector('.container');
+    container.insertBefore(errorDiv, container.firstChild);
+    
+    setTimeout(() => errorDiv.remove(), 5000);
+}
+
+// Sayfa yüklendiğinde
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('index.js yüklendi');
+    
+    // Oturum kontrolü yap
+    checkSession();
+    
+    // Arama kutusunu dinle
+    const searchInput = document.getElementById('searchInput');
+    const searchButton = document.getElementById('searchButton');
+    
+    if (searchInput && searchButton) {
+        searchButton.addEventListener('click', () => {
+            searchCities(searchInput.value);
+        });
+
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                searchCities(searchInput.value);
+            }
+        });
+
+        searchInput.addEventListener('input', () => {
+            searchCities(searchInput.value);
+        });
+    }
+
+    // Şehirleri yükle
+    loadCities();
 }); 

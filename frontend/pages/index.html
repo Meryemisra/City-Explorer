@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>City Explorer - Ana Sayfa</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
     <link rel="stylesheet" href="../css/style.css">
     <style>
         .search-container {
@@ -36,165 +37,67 @@
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
-            <a class="navbar-brand" href="index.html">City Explorer</a>
+            <a class="navbar-brand" href="../">City Explorer</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link active" href="index.html">Ana Sayfa</a>
+                        <a class="nav-link active" href="../">Ana Sayfa</a>
                     </li>
                 </ul>
-                <div id="usernameDisplayContainer" style="display: none;" class="me-3">
-                    <span class="text-light">Hoş geldin, </span>
-                    <span id="usernameDisplay" class="text-light"></span>
+                <div id="authNav">
+                    <!-- JavaScript ile doldurulacak -->
                 </div>
-                <ul class="navbar-nav" id="authNav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="login.html">Giriş Yap</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="register.html">Kayıt Ol</a>
-                    </li>
-                </ul>
             </div>
         </div>
     </nav>
 
     <div class="container mt-4">
-        <div class="welcome-section text-center mb-4">
-            <h1>Türkiye'nin Şehirlerini Keşfet</h1>
-            <p class="lead">Türkiye'nin 81 ilini keşfedin, şehirler hakkında bilgi edinin ve deneyimlerinizi paylaşın.</p>
+        <div class="row mb-4">
+            <div class="col-12">
+                <h1 class="display-4">Şehirler</h1>
+                <p class="lead">Türkiye'nin güzel şehirlerini keşfedin</p>
+            </div>
         </div>
 
-        <div class="search-container mb-4">
-            <input type="text" id="searchInput" class="form-control" placeholder="Şehir ara...">
+        <div class="row mb-4">
+            <div class="col-md-6 mx-auto">
+                <div class="input-group">
+                    <input type="text" id="searchInput" class="form-control" placeholder="Şehir ara...">
+                    <button class="btn btn-primary" type="button" id="searchButton">
+                        <i class="bi bi-search"></i> Ara
+                    </button>
+                </div>
+            </div>
         </div>
 
-        <div id="cityList" class="city-list"></div>
+        <div class="row" id="citiesList">
+            <!-- Şehirler JavaScript ile buraya yüklenecek -->
+            <div class="col-12">
+                <div class="alert alert-info">
+                    <div class="d-flex align-items-center">
+                        <div class="spinner-border spinner-border-sm me-2" role="status">
+                            <span class="visually-hidden">Yükleniyor...</span>
+                        </div>
+                        Şehirler yükleniyor...
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
+    <footer class="bg-light py-3 mt-5">
+        <div class="container text-center">
+            <p class="mb-0">&copy; 2024 City Explorer. Tüm hakları saklıdır.</p>
+        </div>
+    </footer>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        const cities = [
-            { name: 'Adana', value: 'adana' },
-            { name: 'Adıyaman', value: 'adiyaman' },
-            { name: 'Afyonkarahisar', value: 'afyonkarahisar' },
-            { name: 'Ağrı', value: 'agri' },
-            { name: 'Amasya', value: 'amasya' },
-            { name: 'Ankara', value: 'ankara' },
-            { name: 'Antalya', value: 'antalya' },
-            { name: 'Artvin', value: 'artvin' },
-            { name: 'Aydın', value: 'aydin' },
-            { name: 'Balıkesir', value: 'balikesir' },
-            { name: 'Bilecik', value: 'bilecik' },
-            { name: 'Bingöl', value: 'bingol' },
-            { name: 'Bitlis', value: 'bitlis' },
-            { name: 'Bolu', value: 'bolu' },
-            { name: 'Burdur', value: 'burdur' },
-            { name: 'Bursa', value: 'bursa' },
-            { name: 'Çanakkale', value: 'canakkale' },
-            { name: 'Çankırı', value: 'cankiri' },
-            { name: 'Çorum', value: 'corum' },
-            { name: 'Denizli', value: 'denizli' },
-            { name: 'Diyarbakır', value: 'diyarbakir' },
-            { name: 'Edirne', value: 'edirne' },
-            { name: 'Elazığ', value: 'elazig' },
-            { name: 'Erzincan', value: 'erzincan' },
-            { name: 'Erzurum', value: 'erzurum' },
-            { name: 'Eskişehir', value: 'eskisehir' },
-            { name: 'Gaziantep', value: 'gaziantep' },
-            { name: 'Giresun', value: 'giresun' },
-            { name: 'Gümüşhane', value: 'gumushane' },
-            { name: 'Hakkari', value: 'hakkari' },
-            { name: 'Hatay', value: 'hatay' },
-            { name: 'Isparta', value: 'isparta' },
-            { name: 'Mersin', value: 'mersin' },
-            { name: 'İstanbul', value: 'istanbul' },
-            { name: 'İzmir', value: 'izmir' },
-            { name: 'Kars', value: 'kars' },
-            { name: 'Kastamonu', value: 'kastamonu' },
-            { name: 'Kayseri', value: 'kayseri' },
-            { name: 'Kırklareli', value: 'kirklareli' },
-            { name: 'Kırşehir', value: 'kirsehir' },
-            { name: 'Kocaeli', value: 'kocaeli' },
-            { name: 'Konya', value: 'konya' },
-            { name: 'Kütahya', value: 'kutahya' },
-            { name: 'Malatya', value: 'malatya' },
-            { name: 'Manisa', value: 'manisa' },
-            { name: 'Kahramanmaraş', value: 'kahramanmaras' },
-            { name: 'Mardin', value: 'mardin' },
-            { name: 'Muğla', value: 'mugla' },
-            { name: 'Muş', value: 'mus' },
-            { name: 'Nevşehir', value: 'nevsehir' },
-            { name: 'Niğde', value: 'nigde' },
-            { name: 'Ordu', value: 'ordu' },
-            { name: 'Rize', value: 'rize' },
-            { name: 'Sakarya', value: 'sakarya' },
-            { name: 'Samsun', value: 'samsun' },
-            { name: 'Siirt', value: 'siirt' },
-            { name: 'Sinop', value: 'sinop' },
-            { name: 'Sivas', value: 'sivas' },
-            { name: 'Tekirdağ', value: 'tekirdag' },
-            { name: 'Tokat', value: 'tokat' },
-            { name: 'Trabzon', value: 'trabzon' },
-            { name: 'Tunceli', value: 'tunceli' },
-            { name: 'Şanlıurfa', value: 'sanliurfa' },
-            { name: 'Uşak', value: 'usak' },
-            { name: 'Van', value: 'van' },
-            { name: 'Yozgat', value: 'yozgat' },
-            { name: 'Zonguldak', value: 'zonguldak' },
-            { name: 'Aksaray', value: 'aksaray' },
-            { name: 'Bayburt', value: 'bayburt' },
-            { name: 'Karaman', value: 'karaman' },
-            { name: 'Kırıkkale', value: 'kirikkale' },
-            { name: 'Batman', value: 'batman' },
-            { name: 'Şırnak', value: 'Şırnak' },
-            { name: 'Bartın', value: 'Bartın' },
-            { name: 'Ardahan', value: 'Ardahan' },
-            { name: 'Iğdır', value: 'Iğdır' },
-            { name: 'Yalova', value: 'Yalova' },
-            { name: 'Karabük', value: 'Karabük' },
-            { name: 'Kilis', value: 'Kilis' },
-            { name: 'Osmaniye', value: 'Osmaniye' },
-            { name: 'Düzce', value: 'Düzce' }
-        ];
-
-        function turkishToLower(str) {
-            return str
-                .replace(/İ/g, 'i')
-                .replace(/I/g, 'ı')
-                .replace(/Ş/g, 'ş')
-                .replace(/Ğ/g, 'ğ')
-                .replace(/Ü/g, 'ü')
-                .replace(/Ö/g, 'ö')
-                .replace(/Ç/g, 'ç')
-                .toLowerCase();
-        }
-
-        function renderCities(filteredCities = cities) {
-            const cityList = document.getElementById('cityList');
-            cityList.innerHTML = filteredCities.map(city => `
-                <div class="city-card" onclick="window.location.href='city.html?name=${city.name}'">
-                    ${city.name}
-                </div>
-            `).join('');
-        }
-
-        document.getElementById('searchInput').addEventListener('input', (e) => {
-            const searchTerm = turkishToLower(e.target.value);
-            const filteredCities = cities.filter(city => 
-                turkishToLower(city.name).includes(searchTerm)
-            );
-            renderCities(filteredCities);
-        });
-
-        // İlk yüklemede tüm şehirleri göster
-        renderCities();
-    </script>
+    <script src="../js/index.js"></script>
 </body>
 
 </html> 

@@ -2,7 +2,13 @@ const express = require('express');
 const router = express.Router();
 const cityController = require('../controllers/cityController');
 const { isAuthenticated } = require('../middleware/authMiddleware');
-const supabase = require('../config/supabase');
+const { createClient } = require('@supabase/supabase-js');
+
+// Supabase bağlantısı
+const supabase = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY
+);
 
 // cities nesnesi silindi
 
@@ -578,14 +584,25 @@ const cities = {
 };
 
 // Tüm şehirleri getir
-router.get('/', (req, res) => {
-    res.json(cities);
+router.get('/', async (req, res) => {
+    try {
+        const { data: cities, error } = await supabase
+            .from('cities')
+            .select('*')
+            .order('name');
+
+        if (error) throw error;
+        res.json(cities);
+    } catch (error) {
+        console.error('Şehirler alınırken hata:', error);
+        res.status(500).json({ error: 'Şehirler alınamadı' });
+    }
 });
 
 // Şehirleri listele
 router.get('/all', cityController.getCities);
 
-// Şehrin yorumlarını getir (bu route'u önce tanımlıyoruz)
+// Şehrin yorumlarını getir
 router.get('/:cityName/comments', async (req, res) => {
     try {
         const { cityName } = req.params;
@@ -645,47 +662,162 @@ router.get('/:cityName/comments', async (req, res) => {
     }
 });
 
-// Şehir detaylarını getir (bu route'u en sona koyuyoruz)
-router.get('/:name', (req, res) => {
-    const cityName = decodeURIComponent(req.params.name);
-    console.log('Şehir detayları isteniyor:', cityName);
-    
-    // Şehir adını normalize et (büyük harf ve Türkçe karakter düzeltmesi)
-    const normalizedCityName = cityName
-        .toUpperCase()
-        .replace('İ', 'I')
-        .replace('Ğ', 'G')
-        .replace('Ü', 'U')
-        .replace('Ş', 'S')
-        .replace('Ö', 'O')
-        .replace('Ç', 'C');
-    
-    // Şehir verilerini normalize et
-    const normalizedCities = {};
-    Object.keys(cities).forEach(key => {
-        const normalizedKey = key
-            .toUpperCase()
-            .replace('İ', 'I')
-            .replace('Ğ', 'G')
-            .replace('Ü', 'U')
-            .replace('Ş', 'S')
-            .replace('Ö', 'O')
-            .replace('Ç', 'C');
-        normalizedCities[normalizedKey] = cities[key];
-    });
-    
-    // Normalize edilmiş şehir adıyla eşleştir
-    const city = normalizedCities[normalizedCityName];
-    if (!city) {
-        console.log('Şehir bulunamadı:', cityName);
-        return res.status(404).json({ error: 'Şehir bulunamadı' });
+// Yorum ekle
+router.post('/:cityName/comments', async (req, res) => {
+    try {
+        const { cityName } = req.params;
+        const { content } = req.body;
+        
+        // Session token'ı al
+        const sessionToken = req.cookies.sb_session;
+        if (!sessionToken) {
+            console.log('Session token bulunamadı');
+            return res.status(401).json({ error: 'Oturum açmanız gerekiyor' });
+        }
+
+        console.log('Session token:', sessionToken);
+
+        // Kullanıcı bilgilerini al
+        const { data: { user }, error: sessionError } = await supabase.auth.getUser(sessionToken);
+        if (sessionError) {
+            console.error('Oturum hatası:', sessionError);
+            return res.status(401).json({ error: 'Geçersiz oturum' });
+        }
+
+        if (!user) {
+            console.error('Kullanıcı bulunamadı');
+            return res.status(401).json({ error: 'Kullanıcı bulunamadı' });
+        }
+
+        console.log('Kullanıcı bilgileri:', user);
+
+        // Önce şehir ID'sini bul
+        const { data: city, error: cityError } = await supabase
+            .from('cities')
+            .select('id')
+            .eq('name', cityName)
+            .single();
+
+        if (cityError) {
+            console.error('Şehir bulunamadı:', cityError);
+            return res.status(404).json({ error: 'Şehir bulunamadı' });
+        }
+
+        console.log('Şehir bulundu:', city);
+
+        // Kullanıcı bilgilerini al
+        const { data: userData, error: userError } = await supabase
+            .from('users')
+            .select('username')
+            .eq('id', user.id)
+            .single();
+
+        if (userError) {
+            console.error('Kullanıcı bilgileri alınamadı:', userError);
+            return res.status(500).json({ error: 'Kullanıcı bilgileri alınamadı' });
+        }
+
+        console.log('Kullanıcı bilgileri alındı:', userData);
+
+        // Yorumu ekle
+        const commentData = {
+            city_id: city.id,
+            user_id: user.id,
+            content: content,
+            created_at: new Date().toISOString()
+        };
+
+        console.log('Eklenecek yorum:', commentData);
+
+        const { data: comment, error: commentError } = await supabase
+            .from('comments')
+            .insert([commentData])
+            .select()
+            .single();
+
+        if (commentError) {
+            console.error('Yorum eklenirken hata:', commentError);
+            console.error('Hata detayı:', commentError.message);
+            console.error('Hata kodu:', commentError.code);
+            return res.status(500).json({ 
+                error: 'Yorum eklenemedi',
+                details: commentError.message
+            });
+        }
+
+        // Yorumu kullanıcı adıyla birlikte döndür
+        const commentWithUsername = {
+            ...comment,
+            username: userData.username || 'Anonim'
+        };
+
+        console.log('Yorum eklendi:', commentWithUsername);
+        res.status(201).json(commentWithUsername);
+    } catch (error) {
+        console.error('Yorum eklenirken beklenmeyen hata:', error);
+        console.error('Hata detayı:', error.message);
+        console.error('Hata stack:', error.stack);
+        res.status(500).json({ 
+            error: 'Yorum eklenirken bir hata oluştu',
+            details: error.message
+        });
     }
-    
-    console.log('Şehir detayları gönderiliyor:', city);
-    res.json(city);
 });
 
-// Yeni şehir ekle (sadece giriş yapmış kullanıcılar)
-router.post('/', cityController.createCity);
+// Şehir detaylarını getir
+router.get('/:name', async (req, res) => {
+    try {
+        const { name } = req.params;
+        console.log('Şehir detayları isteniyor:', name);
+
+        const { data: city, error } = await supabase
+            .from('cities')
+            .select('*')
+            .eq('name', name)
+            .single();
+
+        if (error) {
+            console.error('Şehir bulunamadı:', error);
+            return res.status(404).json({ error: 'Şehir bulunamadı' });
+        }
+
+        if (!city) {
+            return res.status(404).json({ error: 'Şehir bulunamadı' });
+        }
+
+        console.log('Şehir detayları gönderiliyor:', city);
+        res.json(city);
+    } catch (error) {
+        console.error('Şehir detayları alınırken hata:', error);
+        res.status(500).json({ error: 'Şehir detayları alınamadı' });
+    }
+});
+
+// Yeni şehir ekle
+router.post('/', async (req, res) => {
+    try {
+        const { name, description, location, population, attractions } = req.body;
+
+        const { data: city, error } = await supabase
+            .from('cities')
+            .insert([
+                {
+                    name,
+                    description,
+                    location,
+                    population,
+                    attractions
+                }
+            ])
+            .select()
+            .single();
+
+        if (error) throw error;
+        res.status(201).json(city);
+    } catch (error) {
+        console.error('Şehir eklenirken hata:', error);
+        res.status(500).json({ error: 'Şehir eklenemedi' });
+    }
+});
 
 module.exports = router; 

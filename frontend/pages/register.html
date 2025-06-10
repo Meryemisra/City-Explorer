@@ -28,10 +28,10 @@
                 </ul>
                 <ul class="navbar-nav ms-auto" id="authNav">
                     <li class="nav-item">
-                        <a class="nav-link" href="login.html">Giriş Yap</a>
+                        <a class="nav-link" href="/login">Giriş Yap</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" href="register.html">Kayıt Ol</a>
+                        <a class="nav-link active" href="/register">Kayıt Ol</a>
                     </li>
                 </ul>
             </div>
@@ -48,8 +48,8 @@
                     <div class="card-body">
                         <form id="registerForm">
                             <div class="mb-3">
-                                <label for="name" class="form-label">Ad Soyad</label>
-                                <input type="text" class="form-control" id="name" required>
+                                <label for="username" class="form-label">Ad Soyad</label>
+                                <input type="text" class="form-control" id="username" required>
                             </div>
                             <div class="mb-3">
                                 <label for="email" class="form-label">E-posta</label>
@@ -63,8 +63,9 @@
                                 <label for="confirmPassword" class="form-label">Şifre Tekrar</label>
                                 <input type="password" class="form-control" id="confirmPassword" required>
                             </div>
+                            <div id="error-message" class="alert alert-danger" style="display: none;"></div>
                             <div class="d-grid">
-                                <button type="submit" class="btn btn-primary">Kayıt Ol</button>
+                                <button type="submit" class="btn btn-primary" id="submit-button">Kayıt Ol</button>
                             </div>
                         </form>
                         <div class="text-center mt-3">

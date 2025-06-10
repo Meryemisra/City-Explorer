@@ -1,251 +1,236 @@
 // Debug için konsol mesajı
 console.log('city.js yüklendi');
 
-// URL'den şehir adını al
-function getCityNameFromUrl() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const cityName = urlParams.get('name');
-    console.log('URL\'den alınan şehir adı:', cityName);
-    return cityName;
+// Şehir verileri
+const cityData = {
+    'istanbul': {
+        info: 'İstanbul, Türkiye\'nin en kalabalık, ekonomik, tarihi ve sosyo-kültürel açıdan en önemli şehridir. Şehir, iktisadi büyüklük açısından dünyada 34. sırada yer alır. Nüfuslarına göre şehirler listesinde belediye sınırları göz önüne alınarak yapılan sıralamaya göre Avrupa\'da birinci, dünyada ise altıncı sırada yer almaktadır.',
+        places: [
+            'Ayasofya',
+            'Topkapı Sarayı',
+            'Sultanahmet Camii',
+            'Galata Kulesi',
+            'Kapalıçarşı',
+            'Dolmabahçe Sarayı',
+            'Boğaz Köprüsü',
+            'Taksim Meydanı'
+        ]
+    },
+    'ankara': {
+        info: 'Ankara, Türkiye\'nin başkenti ve en kalabalık ikinci şehridir. Nüfusu 2023 yılı itibarıyla 5.7 milyondur. Bu nüfus; 25 ilçe ve bu ilçelere bağlı 1425 mahallede yaşamaktadır.',
+        places: [
+            'Anıtkabir',
+            'Kızılay Meydanı',
+            'Ankara Kalesi',
+            'Etnografya Müzesi',
+            'Atatürk Orman Çiftliği',
+            'Kuğulu Park',
+            'Anadolu Medeniyetleri Müzesi',
+            'Gençlik Parkı'
+        ]
+    },
+    'izmir': {
+        info: 'İzmir, Türkiye\'nin üçüncü büyük şehri ve en önemli liman kentlerinden biridir. Tarihi boyunca birçok medeniyete ev sahipliği yapmış, önemli bir ticaret ve kültür merkezi olmuştur.',
+        places: [
+            'Kemeraltı Çarşısı',
+            'Saat Kulesi',
+            'Kordon',
+            'Efes Antik Kenti',
+            'Bergama Antik Kenti',
+            'Çeşme',
+            'Alaçatı',
+            'Foça'
+        ]
+    }
+};
+
+// Oturum kontrolü
+async function checkSession() {
+    try {
+        const response = await fetch('/api/auth/session');
+        const data = await response.json();
+        
+        if (data.user) {
+            // Kullanıcı giriş yapmış
+            document.getElementById('commentForm').style.display = 'block';
+            document.getElementById('loginMessage').style.display = 'none';
+            return data.user;
+        } else {
+            // Kullanıcı giriş yapmamış
+            document.getElementById('commentForm').style.display = 'none';
+            document.getElementById('loginMessage').style.display = 'block';
+            return null;
+        }
+    } catch (error) {
+        console.error('Oturum kontrolü hatası:', error);
+        return null;
+    }
 }
 
 // Şehir detaylarını yükle
-async function loadCityDetails(cityName) {
-    console.log('Şehir detayları yükleniyor:', cityName);
+async function loadCityDetails() {
     try {
-        const response = await fetch(`/api/cities/${encodeURIComponent(cityName)}`);
+        // URL'den şehir adını al
+        const urlParams = new URLSearchParams(window.location.search);
+        const cityName = urlParams.get('name');
+        
+        if (!cityName) {
+            throw new Error('Şehir adı bulunamadı');
+        }
+
+        console.log('Şehir detayları yükleniyor:', cityName);
+
+        const response = await fetch(`/api/cities/${cityName}`);
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const cityData = await response.json();
-        console.log('Şehir detayları yüklendi:', cityData);
-
-        // Şehir ID'sini sakla
-        window.cityId = cityData.id;
-
-        // Gerekli elementleri kontrol et
-        const requiredElements = {
-            cityNameElement: document.getElementById('cityNameElement'),
-            descriptionElement: document.getElementById('descriptionElement'),
-            locationElement: document.getElementById('locationElement'),
-            populationElement: document.getElementById('populationElement'),
-            attractionsList: document.getElementById('attractionsList'),
-            cityInfoContainer: document.getElementById('cityInfoContainer')
-        };
-
-        // Eksik elementleri kontrol et
-        const missingElements = Object.entries(requiredElements)
-            .filter(([_, element]) => !element)
-            .map(([name]) => name);
-
-        if (missingElements.length > 0) {
-            console.error('Eksik elementler:', missingElements);
-            throw new Error(`Gerekli HTML elementleri bulunamadı: ${missingElements.join(', ')}`);
+            throw new Error('Şehir bulunamadı');
         }
 
-        // Şehir bilgilerini doldur
-        requiredElements.cityNameElement.textContent = cityData.name;
-        requiredElements.descriptionElement.textContent = cityData.description;
-        requiredElements.locationElement.textContent = cityData.location;
-        requiredElements.populationElement.textContent = cityData.population;
-
-        // Gezilecek yerleri listele
-        requiredElements.attractionsList.innerHTML = '';
-        cityData.attractions.forEach(attraction => {
-            const li = document.createElement('li');
-            li.className = 'list-group-item';
-            li.textContent = attraction;
-            requiredElements.attractionsList.appendChild(li);
-        });
+        const city = await response.json();
+        console.log('Şehir detayları:', city);
 
         // Şehir bilgilerini göster
-        requiredElements.cityInfoContainer.style.display = 'block';
+        document.getElementById('cityName').textContent = city.name;
+        document.getElementById('cityRegion').textContent = city.region || 'Bölge bilgisi yok';
+        document.getElementById('cityPopulation').textContent = city.population ? `${city.population.toLocaleString()} kişi` : 'Nüfus bilgisi yok';
+        document.getElementById('cityPlate').textContent = city.plate_code || 'Plaka kodu yok';
+        document.getElementById('cityArea').textContent = city.area ? `${city.area.toLocaleString()} km²` : 'Alan bilgisi yok';
+        document.getElementById('cityElevation').textContent = city.elevation ? `${city.elevation} m` : 'Rakım bilgisi yok';
+        document.getElementById('cityAttractions').textContent = city.attractions || 'Gezilecek yer bilgisi yok';
 
+        // Yorumları yükle
+        await loadComments(cityName);
     } catch (error) {
         console.error('Şehir detayları yüklenirken hata:', error);
-        alert('Şehir detayları yüklenirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.');
+        showError('Şehir detayları yüklenemedi');
     }
 }
 
 // Yorumları yükle
 async function loadComments(cityName) {
-    console.log('Yorumlar yükleniyor:', cityName);
     try {
-        const response = await fetch(`/api/cities/${encodeURIComponent(cityName)}/comments`);
+        console.log('Yorumlar yükleniyor:', cityName);
+        const response = await fetch(`/api/cities/${cityName}/comments`);
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            throw new Error('Yorumlar yüklenemedi');
         }
+
         const comments = await response.json();
-        console.log('Yorumlar yüklendi:', comments);
+        console.log('Yorumlar alındı:', comments);
 
-        const commentsContainer = document.getElementById('commentsContainer');
-        if (!commentsContainer) {
-            console.error('commentsContainer elementi bulunamadı');
-            return;
-        }
+        const commentsList = document.getElementById('commentsList');
+        commentsList.innerHTML = '';
 
-        commentsContainer.innerHTML = '';
-        if (comments.length === 0) {
-            commentsContainer.innerHTML = '<p class="text-muted">Henüz yorum yapılmamış. İlk yorumu siz yapın!</p>';
+        if (!comments || comments.length === 0) {
+            commentsList.innerHTML = '<div class="alert alert-info">Henüz yorum yapılmamış. İlk yorumu siz yapın!</div>';
             return;
         }
 
         comments.forEach(comment => {
             const commentElement = document.createElement('div');
-            commentElement.className = 'card mb-2';
+            commentElement.className = 'comment';
             commentElement.innerHTML = `
-                <div class="card-body">
-                    <h6 class="card-subtitle mb-2 text-muted">${comment.username}</h6>
-                    <p class="card-text">${comment.content}</p>
-                    <small class="text-muted">${new Date(comment.created_at).toLocaleString('tr-TR')}</small>
+                <div class="comment-header">
+                    <span class="comment-author">${comment.username || 'Anonim'}</span>
+                    <span class="comment-date">${new Date(comment.created_at).toLocaleDateString('tr-TR')}</span>
                 </div>
+                <div class="comment-content">${comment.content}</div>
             `;
-            commentsContainer.appendChild(commentElement);
+            commentsList.appendChild(commentElement);
         });
-
     } catch (error) {
         console.error('Yorumlar yüklenirken hata:', error);
-        const commentsContainer = document.getElementById('commentsContainer');
-        if (commentsContainer) {
-            commentsContainer.innerHTML = '<p class="text-danger">Yorumlar yüklenirken bir hata oluştu.</p>';
-        }
+        showError('Yorumlar yüklenemedi');
     }
 }
 
-// Yorum gönderme işlemi
-async function handleCommentSubmit(event) {
+// Yorum ekle
+async function addComment(event) {
     event.preventDefault();
     
-    const commentInput = document.getElementById('commentInput');
-    if (!commentInput) {
-        console.error('commentInput elementi bulunamadı');
-        return;
-    }
-
-    const comment = commentInput.value.trim();
-    if (!comment) {
-        alert('Lütfen bir yorum yazın.');
-        return;
-    }
-
-    if (!window.cityId) {
-        alert('Şehir bilgisi bulunamadı.');
-        return;
-    }
-
-    // Auth bilgisini al
-    const authStr = localStorage.getItem('auth');
-    let auth = {};
     try {
-        auth = JSON.parse(authStr || '{}');
-    } catch (error) {
-        console.error('Auth parse error:', error);
-        alert('Oturum bilgisi alınamadı. Lütfen tekrar giriş yapın.');
-        return;
-    }
+        const content = document.getElementById('commentContent').value.trim();
+        if (!content) {
+            showError('Lütfen bir yorum yazın');
+            return;
+        }
 
-    if (!auth.loggedIn || !auth.user) {
-        alert('Yorum yapabilmek için giriş yapmanız gerekiyor.');
-        return;
-    }
+        const urlParams = new URLSearchParams(window.location.search);
+        const cityName = urlParams.get('name');
+        
+        if (!cityName) {
+            throw new Error('Şehir adı bulunamadı');
+        }
 
-    try {
-        const response = await fetch('/api/comments', {
+        console.log('Yorum gönderiliyor:', { cityName, content });
+
+        const response = await fetch(`/api/cities/${encodeURIComponent(cityName)}/comments`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'x-auth-data': authStr
+                'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                city_id: window.cityId,
-                content: comment
-            })
+            body: JSON.stringify({ content }),
+            credentials: 'include'
         });
 
+        const responseData = await response.json();
+
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+            if (response.status === 401) {
+                showError('Yorum yapabilmek için giriş yapmalısınız');
+                return;
+            }
+            throw new Error(responseData.error || responseData.details || 'Yorum eklenemedi');
         }
 
-        // Yorum başarıyla gönderildi
-        commentInput.value = '';
-        alert('Yorumunuz başarıyla eklendi!');
-        await loadComments(getCityNameFromUrl()); // Yorumları yeniden yükle
+        console.log('Yorum eklendi:', responseData);
 
-    } catch (error) {
-        console.error('Yorum gönderilirken hata:', error);
-        alert(error.message || 'Yorum gönderilirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.');
-    }
-}
-
-// Kullanıcı durumunu kontrol et
-function checkAuthStatus() {
-    console.log('Kullanıcı durumu kontrol ediliyor');
-    const authStr = localStorage.getItem('auth');
-    let auth = {};
-    
-    try {
-        auth = JSON.parse(authStr || '{}');
-    } catch (error) {
-        console.error('Auth parse error:', error);
-        auth = {};
-    }
-
-    const usernameDisplayContainer = document.getElementById('usernameDisplayContainer');
-    const usernameDisplay = document.getElementById('usernameDisplay');
-    const commentForm = document.getElementById('commentForm');
-    const loginPrompt = document.getElementById('loginPrompt');
-
-    if (auth.loggedIn && auth.user) {
-        console.log('Kullanıcı giriş yapmış:', auth.user);
+        // Yorum formunu temizle
+        document.getElementById('commentContent').value = '';
         
-        if (usernameDisplayContainer && usernameDisplay) {
-            usernameDisplayContainer.style.display = 'block';
-            usernameDisplay.textContent = auth.user.username;
-        }
-
-        if (commentForm) {
-            commentForm.style.display = 'block';
-        }
-        if (loginPrompt) {
-            loginPrompt.style.display = 'none';
-        }
-    } else {
-        console.log('Kullanıcı giriş yapmamış');
+        // Başarı mesajı göster
+        const successMessage = document.createElement('div');
+        successMessage.className = 'alert alert-success';
+        successMessage.textContent = 'Yorumunuz başarıyla eklendi!';
+        document.getElementById('commentForm').insertBefore(successMessage, document.getElementById('commentForm').firstChild);
         
-        if (usernameDisplayContainer) {
-            usernameDisplayContainer.style.display = 'none';
-        }
-
-        if (commentForm) {
-            commentForm.style.display = 'none';
-        }
-        if (loginPrompt) {
-            loginPrompt.style.display = 'block';
-        }
-    }
-}
-
-// Sayfa yüklendiğinde çalışacak kodlar
-window.addEventListener('load', async () => {
-    console.log('Sayfa başlatılıyor...');
-    
-    // Kullanıcı durumunu kontrol et
-    checkAuthStatus();
-
-    // Şehir adını al ve detayları yükle
-    const cityName = getCityNameFromUrl();
-    if (cityName) {
-        await loadCityDetails(cityName);
+        // 3 saniye sonra başarı mesajını kaldır
+        setTimeout(() => {
+            successMessage.remove();
+        }, 3000);
+        
+        // Yorumları yeniden yükle
         await loadComments(cityName);
-    } else {
-        alert('Şehir bilgisi bulunamadı.');
-        window.location.href = '/';
+    } catch (error) {
+        console.error('Yorum eklenirken hata:', error);
+        showError(error.message || 'Yorum eklenemedi');
     }
+}
 
+// Hata mesajı göster
+function showError(message) {
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'alert alert-danger';
+    errorDiv.textContent = message;
+    
+    const container = document.querySelector('.container');
+    container.insertBefore(errorDiv, container.firstChild);
+    
+    setTimeout(() => errorDiv.remove(), 5000);
+}
+
+// Sayfa yüklendiğinde
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('city.js yüklendi');
+    
+    // Oturum kontrolü yap
+    checkSession();
+    
+    // Şehir detaylarını yükle
+    loadCityDetails();
+    
     // Yorum formunu dinle
     const commentForm = document.getElementById('commentForm');
     if (commentForm) {
-        commentForm.addEventListener('submit', handleCommentSubmit);
+        commentForm.addEventListener('submit', addComment);
     }
 }); 

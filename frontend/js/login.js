@@ -3,7 +3,9 @@ let currentUser = null;
 
 // Login form handler
 document.addEventListener('DOMContentLoaded', () => {
-    const loginForm = document.getElementById('loginForm');
+    console.log('Login JS yüklendi');
+    
+    const loginForm = document.getElementById('login-form');
     const logoutButton = document.getElementById('logoutButton');
     const errorMessage = document.getElementById('loginError');
     const successMessage = document.getElementById('successMessage');
@@ -12,81 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     checkAuth();
 
     if (loginForm) {
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-
-            try {
-                console.log('Login attempt with:', { email });
-                
-                const response = await fetch('/api/auth/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ email, password })
-                });
-
-                console.log('Login response status:', response.status);
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const data = await response.json();
-                console.log('Login response:', data);
-
-                if (data.success) {
-                    // Auth bilgisini localStorage'a kaydet
-                    const authData = {
-                        loggedIn: true,
-                        user: {
-                            email: data.user.email,
-                            username: data.user.username
-                        }
-                    };
-                    localStorage.setItem('auth', JSON.stringify(authData));
-                    console.log('Auth data saved to localStorage:', authData);
-
-                    // Başarılı giriş mesajı
-                    if (errorMessage) {
-                        errorMessage.style.display = 'none';
-                    }
-                    
-                    // Kullanıcı bilgilerini sakla
-                    currentUser = data.user;
-                    localStorage.setItem('username', data.user.username);
-                    
-                    // UI'ı güncelle
-                    updateUIForLoggedInUser(data.user);
-                    
-                    // 2 saniye sonra ana sayfaya yönlendir
-                    setTimeout(() => {
-                        window.location.href = '/';
-                    }, 2000);
-                } else {
-                    // Hata mesajını göster
-                    if (errorMessage) {
-                        errorMessage.textContent = data.message || 'Giriş başarısız';
-                        errorMessage.style.display = 'block';
-                    }
-                    if (successMessage) {
-                        successMessage.style.display = 'none';
-                    }
-                }
-            } catch (error) {
-                console.error('Login error:', error);
-                if (errorMessage) {
-                    errorMessage.textContent = 'Bir hata oluştu. Lütfen tekrar deneyin.';
-                    errorMessage.style.display = 'block';
-                }
-                if (successMessage) {
-                    successMessage.style.display = 'none';
-                }
-            }
-        });
+        loginForm.addEventListener('submit', handleLogin);
     }
 
     // Logout button handler
@@ -109,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     updateUIForLoggedInUser(null);
                     
                     // Login sayfasına yönlendir
-                    window.location.href = '/pages/login.html';
+                    window.location.href = '/login';
                 }
             } catch (error) {
                 console.error('Logout error:', error);
@@ -120,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // UI'ı güncelle
 function updateUIForLoggedInUser(user) {
-    const loginForm = document.getElementById('loginForm');
+    const loginForm = document.getElementById('login-form');
     const userInfo = document.getElementById('userInfo');
     const logoutButton = document.getElementById('logoutButton');
     const username = document.getElementById('username');
@@ -139,25 +67,59 @@ function updateUIForLoggedInUser(user) {
     }
 }
 
-// Oturum durumunu kontrol et
+// Oturum kontrolü
 async function checkAuth() {
     try {
-        const response = await fetch('/api/auth/check', {
-            credentials: 'include'
-        });
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
+        const response = await fetch('/api/auth/session');
         const data = await response.json();
-        console.log('Auth check response:', data);
-
-        if (data.loggedIn) {
-            // Kullanıcı zaten giriş yapmışsa ana sayfaya yönlendir
+        
+        if (data.user) {
+            // Kullanıcı zaten giriş yapmış, ana sayfaya yönlendir
             window.location.href = '/';
         }
     } catch (error) {
         console.error('Auth check error:', error);
+    }
+}
+
+// Giriş formunu gönder
+async function handleLogin(event) {
+    event.preventDefault();
+    
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const errorMessage = document.getElementById('error-message');
+    const submitButton = document.getElementById('submit-button');
+    
+    try {
+        // Submit butonunu devre dışı bırak
+        submitButton.disabled = true;
+        submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Giriş yapılıyor...';
+        
+        const response = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email, password }),
+            credentials: 'include'
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || 'Giriş yapılamadı');
+        }
+
+        // Giriş başarılı, ana sayfaya yönlendir
+        window.location.href = '/';
+    } catch (error) {
+        console.error('Login error:', error);
+        errorMessage.textContent = error.message;
+        errorMessage.style.display = 'block';
+    } finally {
+        // Submit butonunu tekrar aktif et
+        submitButton.disabled = false;
+        submitButton.textContent = 'Giriş Yap';
     }
 } 

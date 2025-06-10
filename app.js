@@ -11,24 +11,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// Static files
+// Static files - serve frontend files
 app.use(express.static(path.join(__dirname, 'frontend')));
-
-// Global middleware - kullanıcı bilgisini tüm view'lara gönder
-app.use(async (req, res, next) => {
-    try {
-        const token = req.cookies['sb-access-token'];
-        if (token) {
-            const { data: { user }, error } = await supabase.auth.getUser(token);
-            if (!error && user) {
-                res.locals.user = user;
-            }
-        }
-        next();
-    } catch (error) {
-        next();
-    }
-});
 
 // Routes
 const authRouter = require('./routes/auth');
@@ -43,7 +27,16 @@ app.use('/api/comments', commentsRouter);
 
 // Ana sayfa
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    res.sendFile(path.join(__dirname, 'frontend/pages/index.html'));
+});
+
+// Catch-all route for frontend pages
+app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api/')) {
+        next();
+    } else {
+        res.sendFile(path.join(__dirname, 'frontend', req.path));
+    }
 });
 
 // Error handling

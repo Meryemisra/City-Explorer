@@ -56,4 +56,258 @@
     background-color: #f8f9fa;
     border-radius: 8px;
     margin-bottom: 2rem;
+}
+
+/* Şehir Detay Sayfası Stilleri */
+.city-detail-container {
+    padding: 20px;
+}
+
+/* Yorumlar Bölümü */
+.comments-section {
+    margin-top: 1rem;
+}
+
+.comment {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.comment-author {
+    font-weight: bold;
+    color: #0d6efd;
+}
+
+.comment-content {
+    color: #212529;
+    line-height: 1.5;
+}
+
+/* Şehir Bilgileri */
+.info-item {
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.info-item:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.info-item h6 {
+    color: #0d6efd;
+    margin-bottom: 0.5rem;
+}
+
+.info-item p {
+    color: #212529;
+    margin-bottom: 0;
+}
+
+/* Form Stilleri */
+.form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13,110,253,0.25);
+}
+
+/* Responsive Düzenlemeler */
+@media (max-width: 768px) {
+    .col-md-10 {
+        margin-bottom: 2rem;
+    }
+}
+
+#placesList {
+    margin: 0;
+    padding: 0;
+}
+
+#placesList li {
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    color: #444;
+}
+
+#placesList li:last-child {
+    margin-bottom: 0;
+}
+
+/* Şehir Bilgileri Bölümü */
+.city-info-section {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.1);
+}
+
+.city-info-section h4 {
+    color: #333;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+.city-info-section p {
+    color: #495057;
+    line-height: 1.6;
+}
+
+/* Gezilecek Yerler Listesi */
+.places-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.places-list .place-item {
+    background-color: #f8f9fa;
+    border: 1px solid rgba(0,0,0,.1);
+    border-radius: 8px;
+    margin-bottom: 10px;
+    padding: 15px;
+}
+
+.places-list .place-name {
+    color: #333;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.places-list .place-description {
+    color: #495057;
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+/* Şehir Detayları Kartı */
+.city-details-card {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.1);
+}
+
+.city-details-card .card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid rgba(0,0,0,.1);
+    padding: 15px;
+}
+
+.city-details-card .card-header h5 {
+    margin: 0;
+    color: #333;
+    font-weight: 600;
+}
+
+.city-details-card .card-body {
+    padding: 15px;
+}
+
+.detail-item {
+    margin-bottom: 15px;
+}
+
+.detail-item:last-child {
+    margin-bottom: 0;
+}
+
+.detail-item h6 {
+    color: #495057;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.detail-item p {
+    color: #212529;
+    margin: 0;
+}
+
+/* Responsive Düzenlemeler */
+@media (max-width: 768px) {
+    .city-detail-container {
+        padding: 10px;
+    }
+    
+    .comments-section,
+    .city-info-section,
+    .city-details-card {
+        padding: 15px;
+    }
+    
+    .comment-card,
+    .place-item {
+        padding: 10px;
+    }
+}
+
+/* Genel Stiller */
+body {
+    background-color: #f8f9fa;
+}
+
+/* Yorumlar Listesi */
+.comments-list {
+    margin-top: 2rem;
+}
+
+.comment-item {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.comment-username {
+    font-weight: bold;
+    color: #0d6efd;
+}
+
+.comment-content {
+    color: #212529;
+    line-height: 1.5;
+}
+
+/* Şehir Bilgileri */
+.city-info {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.info-item {
+    margin-bottom: 1.5rem;
+}
+
+.info-item:last-child {
+    margin-bottom: 0;
+}
+
+.info-item h4 {
+    color: #0d6efd;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.info-item p {
+    color: #212529;
+    margin-bottom: 0;
+}
+
+/* Responsive Düzenlemeler */
+@media (max-width: 768px) {
+    .col-md-8 {
+        margin-bottom: 2rem;
+    }
 } 
